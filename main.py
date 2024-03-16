@@ -60,19 +60,19 @@ class Boat:
         self.num = num
         self.pos = pos
         self.status = status
-        self.current_load = 0
     def ship(self, berth_idx):
-        print("ship", self.boat_idx, berth_idx)
+        if self.status == 1 and self.pos != berth_idx:
+            print("ship", self.boat_idx, berth_idx)
+            sys.stdout.flush()
     def go(self):
-        if self.current_load == boat_capacity:
+        # print(f"boat {self.boat_idx}", self.num, file=sys.stderr)
+        # sys.stderr.flush()
+        if boat_capacity - self.num < berth[self.pos].loading_speed:
+        # if boat_capacity == self.num and self.pos != -1 and self.status == 1:
             print("go", self.boat_idx)
-    def load(self):
-        if self.pos != -1 and self.status == 1:
-            self.current_load += berth[self.pos].loading_speed
-    def unload(self):
-        if self.pos == -1 and self.status == 1:
-            self.current_load = 0
+            sys.stdout.flush()
 boat = [Boat(i) for i in range(5)]
+
 
 
 money = 0
@@ -152,13 +152,16 @@ def offlineInput():
     return id
 
 if __name__ == "__main__":
-    # Init()
-    offlineInit()
+    Init()
+    # offlineInit()
     for zhen in range(1, 15001):
-        id = offlineInput()
-        # id = Input()
+        # id = offlineInput()
+        id = Input()
         for i in range(robot_num):
             print("move", i, random.randint(0, 3))
             sys.stdout.flush()
+        for i in range(5):
+            boat[i].ship(i)
+            boat[i].go()
         print("OK")
         sys.stdout.flush()
