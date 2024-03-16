@@ -15,6 +15,33 @@ class Robot:
         self.mbx = mbx
         self.mby = mby
 
+    # 机器人的移动行为
+    def move(self, id, direction):
+        if isinstance(id, int) and 0 <= id <= 9:
+            if direction == 0:
+                self.x = self.x
+                self.y = self.y + 1
+            if direction == 1:
+                self.x = self.x
+                self.y = self.y - 1
+            if direction == 2:
+                self.x = self.x - 1
+                self.y = self.y
+            if direction == 3:
+                self.x = self.x + 1
+                self.y = self.y
+        print("move", id, direction)
+
+    # 机器人获取物品的行为
+    def get(self, id):
+        if isinstance(id, int) and 0 <= id <= 9:
+            print("get", id)
+
+    # 机器人卸载物品的行为
+    def pull(self, id):
+        if isinstance(id, int) and 0 <= id <= 9:
+            print("pull", id)
+
 robot = [Robot(i) for i in range(robot_num)]
 
 class Berth:
