@@ -6,7 +6,8 @@ robot_num = 10
 berth_num = 10
 N = 210
 class Robot:
-    def __init__(self, startX=0, startY=0, goods=0, status=0, mbx=0, mby=0):
+    def __init__(self, robot_idx, startX=0, startY=0, goods=0, status=0, mbx=0, mby=0):
+        self.robot_idx = robot_idx
         self.x = startX
         self.y = startY
         self.goods = goods
@@ -14,24 +15,37 @@ class Robot:
         self.mbx = mbx
         self.mby = mby
 
-robot = [Robot() for _ in range(robot_num)]
+robot = [Robot(i) for i in range(robot_num)]
 
 class Berth:
-    def __init__(self, x=0, y=0, transport_time=0, loading_speed=0):
+    def __init__(self, berth_idx, x=0, y=0, transport_time=0, loading_speed=0):
+        self.berth_idx = berth_idx
         self.x = x
         self.y = y
         self.transport_time = transport_time
         self.loading_speed = loading_speed
 
-berth = [Berth() for _ in range(berth_num)]
+berth = [Berth(i) for i in range(berth_num)]
 
 class Boat:
-    def __init__(self, num=0, pos=0, status=0):
+    def __init__(self, boat_idx, num=0, pos=0, status=0):
+        self.boat_idx = boat_idx
         self.num = num
         self.pos = pos
         self.status = status
-
-boat = [Boat() for _ in range(5)]
+        self.current_load = 0
+    def ship(self, berth_idx):
+        print("ship", self.boat_idx, berth_idx)
+    def go(self):
+        if self.current_load == boat_capacity:
+            print("go", self.boat_idx)
+    def load(self):
+        if self.pos != -1 and self.status == 1:
+            self.current_load += berth[self.pos].loading_speed
+    def unload(self):
+        if self.pos == -1 and self.status == 1:
+            self.current_load = 0
+boat = [Boat(i) for i in range(5)]
 
 
 money = 0
@@ -79,9 +93,11 @@ def offlineInit():
     sys.stdout.flush()
 
 def Input():
+    global id
+    global money
+    global gds
     id, money = map(int, input().split(" "))
     num = int(input())
-    global gds
     for i in range(num):
         x, y, val = map(int, input().split())
         gds[x][y] = val
@@ -93,10 +109,12 @@ def Input():
     return id
 
 def offlineInput():
+    global id
+    global money
+    global gds
     with open("maps/first_output1.txt", "r") as f:
         id, money = map(int, f.readline().split(" "))
         num = int(f.readline())
-        global gds
         for i in range(num):
             x, y, val = map(int, f.readline().split())
             gds[x][y] = val
