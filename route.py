@@ -117,7 +117,7 @@ def bfs_find_nearest(grid, start ): ##Ñ°ÕÒ»õÎï´úÂë
 
 def bfs_all (start_,grid):
     start_positions = start_[:,1:]
-    goods = []
+    robot_goods = []
     for start in start_positions:
         point = start + [bfs_find_nearest(grid, start)]
         robot_goods.append(point)
@@ -162,3 +162,9 @@ def a_star_numpy(grid, start, goal):
                     open_set_flag[neighbor] = True
 
     return None
+
+def map_restar(map_data, positions):
+    
+    map_data = [[-1 if (i, j) in positions and 0 <= i < len(map_data) and 0 <= j < len(map_data[0]) else val for j, val in enumerate(row)] for i, row in enumerate(map_data)]
+
+    return map_data
