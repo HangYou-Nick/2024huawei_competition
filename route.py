@@ -7,9 +7,9 @@ def read_map(filename):
     goods = 0
     boat_wharf = 0
     nrows, ncols = len(lines), len(lines[0].strip())
-    map_data = np.ones((nrows, ncols), dtype=np.float32) * np.inf  # åˆå§‹åŒ–åœ°å›¾æ•°æ®ï¼Œéšœç¢ç‰©å¤„ä¸ºæ— ç©·å¤§
-    start, end ,mid= None, None,  None# èµ·ç‚¹å’Œç»ˆç‚¹
- ## åˆå§‹åŒ–æœºå™¨äººçš„ä½ç½®ï¼Œè´§ç‰©ï¼Œç å¤´ï¼Œæµ·ï¼Œé™†åœ°
+    map_data = np.ones((nrows, ncols), dtype=np.float32) * np.inf  # ³õÊ¼»¯µØÍ¼Êı¾İ£¬ÕÏ°­Îï´¦ÎªÎŞÇî´ó
+    start, end ,mid= None, None,  None# ÆğµãºÍÖÕµã
+ ## ³õÊ¼»¯»úÆ÷ÈËµÄÎ»ÖÃ£¬»õÎï£¬ÂëÍ·£¬º££¬Â½µØ
     for i, line in enumerate(lines):
         for j, char in enumerate(line.strip()):
             if char == 'A':
@@ -23,7 +23,7 @@ def read_map(filename):
   ##                  if char(x,y) == ".":   
   ##              mid[goods] = (i, j)
    ##             goods=goods+1
-                #mid[goods].money =åº”è¯¥èµ‹å€¼çš„ä¸œè¥¿
+                #mid[goods].money =Ó¦¸Ã¸³ÖµµÄ¶«Î÷
             elif char == 'B':
                 directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                 for dx, dy in directions:
@@ -32,49 +32,49 @@ def read_map(filename):
                     if char(x,y) == ".":                       
                         end[boat_wharf] = (boat_wharf,i, j)
                         boat_wharf = boat_wharf  + 1
-            elif char == '#':       #char.isdigit():  # ä¸å¯é€šè¡ŒåŒºåŸŸï¼Œéšœç¢ç‰©
-                map_data[i, j] = 0  # æˆ–è€…æ˜¯é€Ÿåº¦çš„å€’æ•°ï¼Œå–å†³äºå…·ä½“é—®é¢˜
-            elif char == '*':       #char.isdigit():  # ä¸å¯é€šè¡ŒåŒºåŸŸï¼Œæµ·   æ•°å­—è¡¨ç¤ºé€Ÿåº¦
-                map_data[i, j] = -1
+            elif char == '#':       #char.isdigit():  # ²»¿ÉÍ¨ĞĞÇøÓò£¬ÕÏ°­Îï
+                map_data[i, j] = 0  # »òÕßÊÇËÙ¶ÈµÄµ¹Êı£¬È¡¾öÓÚ¾ßÌåÎÊÌâ
+            elif char == '*':       #char.isdigit():  # ²»¿ÉÍ¨ĞĞÇøÓò£¬º£   Êı×Ö±íÊ¾ËÙ¶È
+                map_data[i, j] = 0
     
 
     return map_data, start, end,mid ,robot_num , goods, boat_wharf
 
-# è¯»å–åœ°å›¾
+# ¶ÁÈ¡µØÍ¼
 map_data, start, end = read_map('map.txt')
 
 #start[robot_num] = (i, j)
 #mid[goods] = (i, j)
-# è€ƒè™‘å°†è´§ç‰©çš„å‰ä¸¤ä¸ªæ•°æ®å­˜ä¸ºä½ç½®i,jï¼Œç¬¬ä¸‰ä¸ªå…ƒç´ ä¸ºä»·å€¼ï¼›
-def extreme_point(start_, end_):  ##å¯»æ‰¾ç å¤´ä»£ç (å»é‡å¤ç‚¹çš„)
+# ¿¼ÂÇ½«»õÎïµÄÇ°Á½¸öÊı¾İ´æÎªÎ»ÖÃi,j£¬µÚÈı¸öÔªËØÎª¼ÛÖµ£»
+def extreme_point(start_, end_):  ##Ñ°ÕÒÂëÍ·´úÂë(È¥ÖØ¸´µãµÄ)
     start_point = start_ [: ,1,2]
     end_point = end_[: ,1,2]
-    start = np.repeat(start_point, end_.shape[0], axis = 0)#ç›®æ ‡ç‚¹è†¨èƒ€
-    end = np.tile(end_point, (start_.shape[0], 1))   ##ç»ˆç‚¹è†¨èƒ€
+    start = np.repeat(start_point, end_.shape[0], axis = 0)#Ä¿±êµãÅòÕÍ
+    end = np.tile(end_point, (start_.shape[0], 1))   ##ÖÕµãÅòÕÍ
 
-    row_sums = np.sum(np.abs(start -  end), axis = 1)##è®¡ç®—æ­¥æ•°ä¹‹å’Œ
-    # with_money = row_sums * mid[: , 3]     ##å’Œé’±ä¹˜
+    row_sums = np.sum(np.abs(start -  end), axis = 1)##¼ÆËã²½ÊıÖ®ºÍ
+    # with_money = row_sums * mid[: , 3]     ##ºÍÇ®³Ë
 
     sub_arrays = row_sums.reshape(-1, end_.shape[0])
-    min_indices = np.argmin(sub_arrays, axis = 1)##ç¬¬iä¸ªæ•°æ®å¯¹åº”çš„æ•°å­—æ˜¯å®ƒéœ€è¦æ‰¾çš„æ¸¯å£
-    # æ‰¾åˆ°æ¯ä¸ªå­æ•°ç»„ä¸­çš„æœ€å°å€¼åŠå…¶ç´¢å¼•
+    min_indices = np.argmin(sub_arrays, axis = 1)##µÚi¸öÊı¾İ¶ÔÓ¦µÄÊı×ÖÊÇËüĞèÒªÕÒµÄ¸Û¿Ú
+    # ÕÒµ½Ã¿¸ö×ÓÊı×éÖĞµÄ×îĞ¡Öµ¼°ÆäË÷Òı
     min_values = np.min(sub_arrays, axis=1)
 
-    # æ„å»ºæ–°çš„çŸ©é˜µ
+    # ¹¹½¨ĞÂµÄ¾ØÕó
     new_matrix = np.zeros((10, 2))
-    # å¤„ç†é‡å¤æ•°å€¼çš„æƒ…å†µ
+    # ´¦ÀíÖØ¸´ÊıÖµµÄÇé¿ö
     unique_indices, counts = np.unique(min_indices, return_counts=True)
     for idx, count in zip(unique_indices, counts):
         if count > 1:
-         # åœ¨åˆ†å‰²å—ä¸­é™¤å»å¯¹åº”è¡Œ
+         # ÔÚ·Ö¸î¿éÖĞ³ıÈ¥¶ÔÓ¦ĞĞ
             sub_array = sub_arrays[idx]
             sub_array[min_indices[idx]] = np.inf
 
-            # é‡æ–°æ‰¾åˆ°æœ€å°å€¼åŠå…¶ç´¢å¼•
+            # ÖØĞÂÕÒµ½×îĞ¡Öµ¼°ÆäË÷Òı
             new_min_value = np.min(sub_array)
             new_min_index = np.argmin(sub_array)
 
-            # æ›´æ–°æ–°çš„çŸ©é˜µ
+            # ¸üĞÂĞÂµÄ¾ØÕó
             new_matrix[idx, 0] = new_min_value
             new_matrix[idx, 1] = new_min_index
         else:
@@ -90,30 +90,30 @@ def extreme_point(start_, end_):  ##å¯»æ‰¾ç å¤´ä»£ç (å»é‡å¤ç‚¹çš„)
     return (robot_start, robot_end)
 
 
-def bfs_find_nearest(grid, start ): ##å¯»æ‰¾è´§ç‰©ä»£ç 
+def bfs_find_nearest(grid, start ): ##Ñ°ÕÒ»õÎï´úÂë
     global aim_goods
-    # å®šä¹‰ç§»åŠ¨æ–¹å‘ï¼ˆä¸Šï¼Œä¸‹ï¼Œå·¦ï¼Œå³ï¼‰
+    # ¶¨ÒåÒÆ¶¯·½Ïò£¨ÉÏ£¬ÏÂ£¬×ó£¬ÓÒ£©
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    # åˆ›å»ºé˜Ÿåˆ—ï¼Œå¹¶å°†èµ·ç‚¹åŠ å…¥é˜Ÿåˆ—
+    # ´´½¨¶ÓÁĞ£¬²¢½«Æğµã¼ÓÈë¶ÓÁĞ
     queue = np.array([start])
-    # è®°å½•å·²è®¿é—®çš„ä½ç½®
+    # ¼ÇÂ¼ÒÑ·ÃÎÊµÄÎ»ÖÃ
     visited = np.zeros_like(grid)
     visited[start[0], start[1]] = 1
-    # ä»èµ·ç‚¹å¼€å§‹æœç´¢
+    # ´ÓÆğµã¿ªÊ¼ËÑË÷
     while queue:
         x, y = queue.popleft()
-        # æ£€æŸ¥å½“å‰ä½ç½®æ˜¯å¦ä¸ºç›®æ ‡
+        # ¼ì²éµ±Ç°Î»ÖÃÊÇ·ñÎªÄ¿±ê
         if grid[x][y] == 'T' and (x,y) not in aim_goods:
             aim_goods.append[(x, y)]
-            return ((x, y))  # è¿”å›æ‰¾åˆ°çš„ç›®æ ‡ä½ç½®
-        # å°†ç›¸é‚»çš„ä½ç½®åŠ å…¥é˜Ÿåˆ—
+            return ((x, y))  # ·µ»ØÕÒµ½µÄÄ¿±êÎ»ÖÃ
+        # ½«ÏàÁÚµÄÎ»ÖÃ¼ÓÈë¶ÓÁĞ
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            # ç¡®ä¿æ–°ä½ç½®åœ¨ç½‘æ ¼èŒƒå›´å†…ï¼Œä¸”æœªè¢«è®¿é—®ï¼Œä¸”ä¸æ˜¯å¢™å£
+            # È·±£ĞÂÎ»ÖÃÔÚÍø¸ñ·¶Î§ÄÚ£¬ÇÒÎ´±»·ÃÎÊ£¬ÇÒ²»ÊÇÇ½±Ú
             if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and (nx, ny) not in visited :
                 queue.append((nx, ny))
                 visited.add((nx, ny))
-    return None  # å¦‚æœæ²¡æœ‰æ‰¾åˆ°ç›®æ ‡ï¼Œè¿”å›None
+    return None  # Èç¹ûÃ»ÓĞÕÒµ½Ä¿±ê£¬·µ»ØNone
 
 def bfs_all (start_,grid):
     start_positions = start_[:,1:]
@@ -123,48 +123,3 @@ def bfs_all (start_,grid):
         robot_goods.append(point)
     ##robot_goods
     return (robot_goods)
-##A*ç®—æ³•
-    #å¯å‘å‡½æ•°
-def manhattan_distance(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
-
-def a_star_numpy(grid, start, goal):
-    nrows, ncols = len(grid), len(grid[0])
-    open_set_flag = np.zeros((nrows, ncols), dtype=bool)  # è¡¨ç¤ºæ˜¯å¦åœ¨open setä¸­
-    came_from = {}
-    g_score = np.full((nrows, ncols), np.inf)  # é»˜è®¤ä¸ºæ— é™å¤§
-    f_score = np.full((nrows, ncols), np.inf)
-    g_score[start] = 0
-    f_score[start] = manhattan_distance(start, goal)
-    open_set_flag[start] = True
-
-    while np.any(open_set_flag):  # å¦‚æœopen setä¸ä¸ºç©º
-        # æ‰¾åˆ°f_scoreæœ€å°çš„ç‚¹
-        current = np.unravel_index(np.argmin(f_score + (1 - open_set_flag) * np.max(f_score)), (nrows, ncols))
-        if current == goal:
-            # é‡å»ºè·¯å¾„
-            path = []
-            while current in came_from:
-                path.append(current)
-                current = came_from[current]
-            return path[::-1]
-
-        open_set_flag[current] = False  # ä»open setä¸­ç§»é™¤
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-            neighbor = (current[0] + dx, current[1] + dy)
-            if 0 <= neighbor[0] < nrows and 0 <= neighbor[1] < ncols and grid[neighbor[0]][neighbor[1]] != 'X':
-                tentative_g_score = g_score[current] + 1
-                if tentative_g_score < g_score[neighbor]:
-                    # è¿™æ˜¯åˆ°è¯¥é‚»å±…çš„æ›´å¥½è·¯å¾„
-                    came_from[neighbor] = current
-                    g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + manhattan_distance(neighbor, goal)
-                    open_set_flag[neighbor] = True
-
-    return None
-
-def map_restar(map_data, positions):
-    
-    map_data = [[-1 if (i, j) in positions and 0 <= i < len(map_data) and 0 <= j < len(map_data[0]) else val for j, val in enumerate(row)] for i, row in enumerate(map_data)]
-
-    return map_data
