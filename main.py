@@ -1,11 +1,12 @@
 import sys
+import numpy as np
 import random
 import time
 
 n = 200
 robot_num = 10
 berth_num = 10
-N = 210
+N = 200
 
 
 class Robot:
@@ -18,18 +19,15 @@ class Robot:
         self.mbx = mbx
         self.mby = mby
 
-    # 机器人的移动行为
     def move(self, id, direction):
         if isinstance(id, int) and 0 <= id <= 9:
             print("move", id, direction)
 
-    # 机器人获取物品的行为
     def get(self, id):
         if isinstance(id, int) and 0 <= id <= 9:
             # self.status = 1
             print("get", id)
 
-    # 机器人卸载物品的行为
     def pull(self, id):
         if isinstance(id, int) and 0 <= id <= 9:
             # self.status = 0
@@ -58,14 +56,12 @@ class Boat:
     def ship(self, berth_idx):
         if self.status == 1 and self.pos != berth_idx:
             print("ship", self.boat_idx, berth_idx)
-            sys.stdout.flush()
     def go(self):
         # print(f"boat {self.boat_idx}", self.num, file=sys.stderr)
         # sys.stderr.flush()
         if boat_capacity - self.num < berth[self.pos].loading_speed:
         # if boat_capacity == self.num and self.pos != -1 and self.status == 1:
             print("go", self.boat_idx)
-            sys.stdout.flush()
 boat = [Boat(i) for i in range(5)]
 
 
@@ -74,9 +70,67 @@ boat_capacity = 0
 id = 0
 ch = []
 gds = [[0 for _ in range(N)] for _ in range(N)]
+semantic_map = np.zeros((N, N), dtype=int)  # get initial semantic_map
+goods_list = []
+destination = []
+
+def read_map():
+    global ch
+    global semantic_map
+    robot_num = 0
+    goods = 0
+    boat_wharf = 0
+    first_contact = 1
+    for i in range(N):
+        for j in range(N):
+            char = ch[i][0][j]
+            if char == '.':  # for land, we give them 1.
+                semantic_map[i][j] = 1
+
+
+def renew_semantic_map(is_intial):
+    global semantic_map
+    global destination
+    if is_intial:
+        for i in range(berth_num):
+            start_pos = (berth[i].x, berth[i].y)
+            for j in range(16):
+                if j//4 == 0:
+                    try:
+                        is_land = ch[start_pos[0]+(j%4)][0][start_pos[1]-1] == "."
+                        if is_land:
+                            semantic_map[start_pos[0]+(j%4)][start_pos[1]] = 1
+                            destination.append((start_pos[0]+(j%4), start_pos[1]))
+                    except:
+                        pass
+                elif j//4 == 1:
+                    try:
+                        is_land = ch[start_pos[0]+4][0][start_pos[1]+(j%4)] == "."
+                        if is_land:
+                            semantic_map[start_pos[0]+3][start_pos[1]+(j%4)] = 1
+                            destination.append((start_pos[0]+3, start_pos[1]+(j%4)))
+                    except:
+                        pass
+                elif j//4 == 2:
+                    try:
+                        is_land = ch[start_pos[0]+(j%4)][0][start_pos[1]+4] == "."
+                        if is_land:
+                            semantic_map[start_pos[0]+(j%4)][start_pos[1]+3] = 1
+                            destination.append((start_pos[0]+(j%4), start_pos[1]+3))
+                    except:
+                        pass
+                elif j//4 == 3:
+                    try:
+                        is_land = ch[start_pos[0]-1][0][start_pos[1]+(j%4)] == "."
+                        if is_land:
+                            semantic_map[start_pos[0]][start_pos[1]+(j%4)] = 1
+                            destination.append((start_pos[0], start_pos[1]+(j%4)))
+                    except:
+                        pass
 
 
 def Init():
+    global ch
     for i in range(0, n):
         line = input()
         ch.append([c for c in line.split(sep=" ")])
@@ -90,12 +144,15 @@ def Init():
         berth[id].loading_speed = berth_list[4]
     global boat_capacity
     boat_capacity = int(input())
+    read_map(ch)
+    renew_semantic_map(is_intial=True)
     okk = input()
     print("OK")
     sys.stdout.flush()
 
 
 def offlineInit():
+    global ch
     with open("maps/map1.txt", "r") as f:
         content = f.readlines()
     for i in range(0, n):
@@ -113,6 +170,8 @@ def offlineInit():
         berth[id].loading_speed = berth_list[4]
     global boat_capacity
     boat_capacity = int(content[i+1])
+    read_map(ch)
+    renew_semantic_map(is_intial=True)
     sys.stdout.flush()
 
 
@@ -120,11 +179,13 @@ def Input():
     global id
     global money
     global gds
+    global goods_list
     id, money = map(int, input().split(" "))
     num = int(input())
     for i in range(num):
         x, y, val = map(int, input().split())
-        gds[x][y] = val
+        # gds[x][y] = val\
+        goods_list.append((x, y, val))
     for i in range(robot_num):
         robot[i].goods, robot[i].x, robot[i].y, robot[i].status = map(int, input().split())
     for i in range(5):
@@ -155,13 +216,13 @@ def getDirection():
 
 
 if __name__ == "__main__":
-    #Init()
+    # Init()
     offlineInit()
-
-    sorted_berth = sorted(berth, key=lambda x: x.loading_speed, reverse=True) # 按照搬运速度进行降序排序
-    berth_pos = []
-    for i in range(5):
-        berth_pos.append([sorted_berth[i].x, sorted_berth[i].y])
+    
+    # sorted_berth = sorted(berth, key=lambda x: x.loading_speed, reverse=True) # 按照搬运速度进行降序排序
+    # berth_pos = []
+    # for i in range(5):
+    #     berth_pos.append([sorted_berth[i].x, sorted_berth[i].y])
 
     # for i in range(len(berth)):
     #     print(sorted_berth[i].x, sorted_berth[i].y, sorted_berth[i].transport_time, sorted_berth[i].loading_speed)
@@ -169,9 +230,6 @@ if __name__ == "__main__":
     for zhen in range(1, 15001):
         id = offlineInput()
         # id = Input()
-
-         # 货物的位置如何表示
-        goods_pos  = [(i, j) for i in range(len(gds)) for j in range(len(gds[i])) if gds[i][j] != 0]
 
         directionList = getDirection() # y由算法得到每个机器人应该朝着什么方向前进
         for i in range(robot_num):
