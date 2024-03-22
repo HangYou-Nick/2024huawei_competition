@@ -36,12 +36,14 @@ robot = [Robot(i) for i in range(robot_num)]
 
 
 class Berth:
-    def __init__(self, berth_idx, x=0, y=0, transport_time=0, loading_speed=0):
+    def __init__(self, berth_idx, x=0, y=0, transport_time=0, loading_speed=0, all_goods=0, flag=0):
         self.berth_idx = berth_idx
         self.x = x
         self.y = y
         self.transport_time = transport_time
         self.loading_speed = loading_speed
+        self.all_goods = all_goods
+        self.flag = flag
 
 berth = [Berth(i) for i in range(berth_num)]
 
@@ -53,14 +55,9 @@ class Boat:
         self.pos = pos
         self.status = status
     def ship(self, berth_idx):
-        if self.status == 1 and self.pos != berth_idx:
-            print("ship", self.boat_idx, berth_idx)
+        print("ship", self.boat_idx, berth_idx)
     def go(self):
-        # print(f"boat {self.boat_idx}", self.num, file=sys.stderr)
-        # sys.stderr.flush()
-        if boat_capacity - self.num < berth[self.pos].loading_speed:
-        # if boat_capacity == self.num and self.pos != -1 and self.status == 1:
-            print("go", self.boat_idx)
+        print("go", self.boat_idx)
 boat = [Boat(i) for i in range(5)]
 
 
@@ -275,5 +272,26 @@ if __name__ == "__main__":
                 paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
         pass
         # update_paths_if_shared_steps(paths)
+        for i in range(5):
+            if boat[i].flag % 2 == 0:
+                j = i
+            else:
+                j = i + 5
+
+            if boat[i].status == 1 and boat[i].pos == -1:
+                boat[i].ship(j)
+                boat[i].num = 0
+                boat[i].flag += 1
+            if boat[i].status == 1 and boat[i].pos != -1:
+                # 判断是否需要将货物运往虚拟点
+                if boat_capacity - boat[i].num < berth[j].loading_speed or zhen >= 15000 - max_transport_time - 1:
+                    boat[i].go()
+                # 更新船只上的货物数量
+                if berth[i].all_goods >= berth[i].loading_speed:
+                    boat[i].num += berth[i].loading_speed
+                    berth[i].all_goods -= berth[i].loading_speed
+                else:
+                    boat[i].num += berth[i].all_goods
+                    berth[i].all_goods = 0
         print("OK")
         sys.stdout.flush()
