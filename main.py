@@ -2,8 +2,6 @@ import sys
 import numpy as np
 import random
 import time
-from route import extreme_point
-from A_star import astar_search, update_paths_if_shared_steps
 
 
 n = 200
@@ -71,6 +69,91 @@ goods_list = []
 destination = []
 obstacle_list = []
 
+def extreme_point(start_, end_):
+    start_point = [(item.x, item.y) for item in start_]
+    start = np.repeat(start_point, len(end_), axis = 0)
+    end = np.tile(end_, (len(start_), 1))[:, :2]
+
+    row_sums = np.sum(np.abs(start -  end), axis = 1)
+
+    sub_arrays = row_sums.reshape(-1, len(end_))
+    min_indices = np.argmin(sub_arrays, axis = 1)
+    min_values = np.min(sub_arrays, axis=1)
+
+    new_matrix = np.zeros((10, 2))
+    unique_indices, counts = np.unique(min_indices, return_counts=True)
+    sub_arrays = sub_arrays.astype(np.float32)
+    for idx, count in zip(unique_indices, counts):
+        if count > 1:
+            sub_array = sub_arrays[idx]
+            sub_array[min_indices[idx]] = np.inf
+            new_min_value = np.min(sub_array)
+            new_min_index = np.argmin(sub_array)
+            new_matrix[idx, 0] = new_min_value
+            new_matrix[idx, 1] = new_min_index
+        else:
+            new_matrix[idx, 0] = min_values[idx]
+            new_matrix[idx, 1] = min_indices[idx]
+    robot_start = np.zeros((len(start_), 3))
+    robot_end = np.zeros((len(start_), 3))
+    robot_start[:,0] = np.arange(new_matrix.shape[0])
+    robot_start[:,1:] = start_point 
+    robot_end[:,0] = new_matrix[:,1]
+    indices = robot_end[:, 0].astype(int)
+    robot_end[:, 1:] = end[indices, :]
+    return (robot_start, robot_end)
+
+def manhattan_distance(start, end):
+    return np.sum(np.abs(np.array(end) - np.array(start)))
+
+def get_adjacent_positions(current_position, avoid):
+    x, y = current_position
+    possible_moves = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]  
+    valid_moves = [move for move in possible_moves if move not in avoid]
+    return valid_moves
+
+def get_direction(from_node, to_node):
+    dx = to_node[0] - from_node[0]
+    dy = to_node[1] - from_node[1]
+    if dx == 1 and dy == 0:
+        return 0  # right
+    elif dx == -1 and dy == 0:
+        return 1  # left
+    elif dx == 0 and dy == -1:
+        return 2  # up
+    elif dx == 0 and dy == 1:
+        return 3  # down
+    return None  # 
+
+def astar_search(start_point, end_point, avoid, goods, id):
+    open_list = [Node(tuple(start_point))]
+    closed_set = set()
+    searched_nodes_count = 0
+    while open_list:
+        current_node = min(open_list, key=lambda node: node.g + node.h)
+        open_list.remove(current_node)
+        searched_nodes_count += 1
+        if goods == 0 and searched_nodes_count > 80:
+            return [[start_point,i+id] for i in range(20)], True
+        if current_node.position == tuple(end_point):
+            path = []
+            while current_node and current_node.parent:
+                direction = get_direction(current_node.parent.position, current_node.position)
+                path.append((current_node.position, current_node.g, direction))
+                current_node = current_node.parent
+            path.append((start_point, 0, 'Start'))  # 'Start'
+            return path[::-1], False  # 
+            
+        closed_set.add(current_node.position)
+        for adjacent_position in get_adjacent_positions(current_node.position, avoid):
+            if adjacent_position in closed_set:
+                continue
+            new_node = Node(adjacent_position, current_node, current_node.g + 1)
+            new_node.h = manhattan_distance(adjacent_position, tuple(end_point))  #  
+            if not any(node.position == adjacent_position and new_node.g >= node.g for node in open_list):
+                open_list.append(new_node)
+    return None
+
 def read_map():
     global ch
     global semantic_map
@@ -83,7 +166,6 @@ def read_map():
             char = ch[i][0][j]
             if char == '.' or char == 'A':  # for land, we give them 1.
                 semantic_map[i][j] = 1
-
 
 def renew_semantic_map(is_intial):
     global semantic_map
@@ -138,9 +220,6 @@ def renew_semantic_map(is_intial):
             if is_target:
                 obstacle_list.append(item)
                 is_target = 0
-        pass
-
-
 
 def Init():
     global ch
@@ -162,7 +241,6 @@ def Init():
     okk = input()
     print("OK")
     sys.stdout.flush()
-
 
 def offlineInit():
     global ch
@@ -188,7 +266,6 @@ def offlineInit():
     
     sys.stdout.flush()
 
-
 def Input():
     global id
     global money
@@ -207,7 +284,6 @@ def Input():
     okk = input()
     return id
 
-
 def offlineInput():
     global id
     global money
@@ -224,24 +300,16 @@ def offlineInput():
             boat[i].status, boat[i].pos = map(int, f.readline().split())
     return id
 
-
 if __name__ == "__main__":
-    # Init()
-    offlineInit()
-    
-    # sorted_berth = sorted(berth, key=lambda x: x.loading_speed, reverse=True) # 按照搬运速度进行降序排序
-    # berth_pos = []
-    # for i in range(5):
-    #     berth_pos.append([sorted_berth[i].x, sorted_berth[i].y])
+    Init()
+    # offlineInit()
 
-    # for i in range(len(berth)):
-    #     print(sorted_berth[i].x, sorted_berth[i].y, sorted_berth[i].transport_time, sorted_berth[i].loading_speed)
     paths = []
     robot_instructions_num = np.zeros(10, dtype=int)
     for zhen in range(1, 15001):
         
-        id = offlineInput()
-        # id = Input()
+        # id = offlineInput()
+        id = Input()
         _, goal_for_each_robot = extreme_point(robot, goods_list)
         robot_pos = [(item.x, item.y) for item in robot]
         if zhen == 1:
@@ -252,9 +320,10 @@ if __name__ == "__main__":
                 robot_instructions_num[i] = len(paths[i])
         # move robots
         for idx, path in enumerate(paths):
-            if path[-1] == id:
-                robot[idx].move(path[0])
-                paths[idx] = path.pop(0)
+            if path[0][1] == zhen:
+                if len(path[0]) == 3:
+                    robot[idx].move(path[0][-1])
+                path.pop(0)
                 robot_instructions_num[idx] -= 1
         robot_finished = np.argwhere(robot_instructions_num == 0)
         robot_finished_num = robot_finished.shape[0]
@@ -268,9 +337,13 @@ if __name__ == "__main__":
                     _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
                 else:
                     robot[robot_idx].get()
+                    for idx, item in enumerate(goods_list):
+                        if robot[robot_idx].x == item[0] and robot[robot_idx].y == item[1]:
+                            goods_idx = idx
+                            break
+                    goods_list.pop(goods_idx)
                     _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
                 paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
-        pass
         # update_paths_if_shared_steps(paths)
         for i in range(5):
             if boat[i].flag % 2 == 0:
@@ -283,10 +356,8 @@ if __name__ == "__main__":
                 boat[i].num = 0
                 boat[i].flag += 1
             if boat[i].status == 1 and boat[i].pos != -1:
-                # 判断是否需要将货物运往虚拟点
                 if boat_capacity - boat[i].num < berth[j].loading_speed or zhen >= 15000 - max_transport_time - 1:
                     boat[i].go()
-                # 更新船只上的货物数量
                 if berth[i].all_goods >= berth[i].loading_speed:
                     boat[i].num += berth[i].loading_speed
                     berth[i].all_goods -= berth[i].loading_speed
