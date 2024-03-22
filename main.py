@@ -2,6 +2,9 @@ import sys
 import numpy as np
 import random
 import time
+from route import extreme_point
+from A_star import astar_search, update_paths_if_shared_steps
+
 
 n = 200
 robot_num = 10
@@ -73,6 +76,7 @@ gds = [[0 for _ in range(N)] for _ in range(N)]
 semantic_map = np.zeros((N, N), dtype=int)  # get initial semantic_map
 goods_list = []
 destination = []
+obstacle_list = []
 
 def read_map():
     global ch
@@ -84,13 +88,14 @@ def read_map():
     for i in range(N):
         for j in range(N):
             char = ch[i][0][j]
-            if char == '.':  # for land, we give them 1.
+            if char == '.' or char == 'A':  # for land, we give them 1.
                 semantic_map[i][j] = 1
 
 
 def renew_semantic_map(is_intial):
     global semantic_map
     global destination
+    global obstacle_list
     if is_intial:
         for i in range(berth_num):
             start_pos = (berth[i].x, berth[i].y)
@@ -127,6 +132,21 @@ def renew_semantic_map(is_intial):
                             destination.append((start_pos[0], start_pos[1]+(j%4)))
                     except:
                         pass
+        tmp = np.argwhere(semantic_map == 0).tolist()
+        is_target = 0
+        for item in tmp:
+            neighbors = [(item[0]-1, item[1]), (item[0]+1, item[1]), (item[0], item[1]-1), (item[0], item[1]+1)]
+            for one_neighbor in neighbors:
+                if one_neighbor[0] < 0 or one_neighbor[1] < 0 or one_neighbor[0] >= N or one_neighbor[1] >= N:
+                    continue
+                if semantic_map[one_neighbor] == 1:
+                    is_target = 1
+                    break
+            if is_target:
+                obstacle_list.append(item)
+                is_target = 0
+        pass
+
 
 
 def Init():
@@ -144,7 +164,7 @@ def Init():
         berth[id].loading_speed = berth_list[4]
     global boat_capacity
     boat_capacity = int(input())
-    read_map(ch)
+    read_map()
     renew_semantic_map(is_intial=True)
     okk = input()
     print("OK")
@@ -170,8 +190,9 @@ def offlineInit():
         berth[id].loading_speed = berth_list[4]
     global boat_capacity
     boat_capacity = int(content[i+1])
-    read_map(ch)
+    read_map()
     renew_semantic_map(is_intial=True)
+    
     sys.stdout.flush()
 
 
@@ -203,16 +224,12 @@ def offlineInput():
         num = int(f.readline())
         for i in range(num):
             x, y, val = map(int, f.readline().split())
-            gds[x][y] = val
+            goods_list.append((x,y,val))
         for i in range(robot_num):
             robot[i].goods, robot[i].x, robot[i].y, robot[i].status = map(int, f.readline().split())
         for i in range(5):
             boat[i].status, boat[i].pos = map(int, f.readline().split())
     return id
-
-
-def getDirection():
-    a = 1
 
 
 if __name__ == "__main__":
@@ -226,23 +243,17 @@ if __name__ == "__main__":
 
     # for i in range(len(berth)):
     #     print(sorted_berth[i].x, sorted_berth[i].y, sorted_berth[i].transport_time, sorted_berth[i].loading_speed)
-
+    paths = []
     for zhen in range(1, 15001):
         id = offlineInput()
         # id = Input()
 
-        directionList = getDirection() # y由算法得到每个机器人应该朝着什么方向前进
-        for i in range(robot_num):
-            robot[i].move(i, directionList[i])
-            robot_pos = [robot[i].x, robot[i].y]
-            
-            if robot_pos in goods_pos:
-                robot[i].get(i)
-            if robot_pos in berth_pos:
-                robot[i].pull(i)
-
-        for i in range(5):
-            boat[i].ship(i)
-            boat[i].go()
+        _, goal_for_each_robot = extreme_point(robot, goods_list)
+        robot_pos = [(item.x, item.y) for item in robot]
+        for start_point, end_point in zip(robot_pos, goal_for_each_robot[:, 1:]):
+            path = astar_search(start_point, end_point, obstacle_list, 0, id)
+            paths.append(path)
+        pass
+        # update_paths_if_shared_steps(paths)
         print("OK")
         sys.stdout.flush()

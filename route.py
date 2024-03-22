@@ -7,9 +7,9 @@ def read_map(filename):
     goods = 0
     boat_wharf = 0
     nrows, ncols = len(lines), len(lines[0].strip())
-    map_data = np.ones((nrows, ncols), dtype=np.float32) * np.inf  # ³õÊ¼»¯µØÍ¼Êý¾Ý£¬ÕÏ°­Îï´¦ÎªÎÞÇî´ó
-    start, end ,mid= None, None,  None# ÆðµãºÍÖÕµã
- ## ³õÊ¼»¯»úÆ÷ÈËµÄÎ»ÖÃ£¬»õÎï£¬ÂëÍ·£¬º££¬Â½µØ
+    map_data = np.ones((nrows, ncols), dtype=np.float32) * np.inf  # ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½Ý£ï¿½ï¿½Ï°ï¿½ï¿½ï´¦Îªï¿½ï¿½ï¿½ï¿½ï¿½
+    start, end ,mid= None, None,  None# ï¿½ï¿½ï¿½ï¿½ï¿½Õµï¿½
+ ## ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï£¬ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â½ï¿½ï¿½
     for i, line in enumerate(lines):
         for j, char in enumerate(line.strip()):
             if char == 'A':
@@ -23,7 +23,7 @@ def read_map(filename):
   ##                  if char(x,y) == ".":   
   ##              mid[goods] = (i, j)
    ##             goods=goods+1
-                #mid[goods].money =Ó¦¸Ã¸³ÖµµÄ¶«Î÷
+                #mid[goods].money =Ó¦ï¿½Ã¸ï¿½Öµï¿½Ä¶ï¿½ï¿½ï¿½
             elif char == 'B':
                 directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
                 for dx, dy in directions:
@@ -32,88 +32,133 @@ def read_map(filename):
                     if char(x,y) == ".":                       
                         end[boat_wharf] = (boat_wharf,i, j)
                         boat_wharf = boat_wharf  + 1
-            elif char == '#':       #char.isdigit():  # ²»¿ÉÍ¨ÐÐÇøÓò£¬ÕÏ°­Îï
-                map_data[i, j] = 0  # »òÕßÊÇËÙ¶ÈµÄµ¹Êý£¬È¡¾öÓÚ¾ßÌåÎÊÌâ
-            elif char == '*':       #char.isdigit():  # ²»¿ÉÍ¨ÐÐÇøÓò£¬º£   Êý×Ö±íÊ¾ËÙ¶È
+            elif char == '#':       #char.isdigit():  # ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ï¿½ï¿½
+                map_data[i, j] = 0  # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù¶ÈµÄµï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            elif char == '*':       #char.isdigit():  # ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ò£¬ºï¿½   ï¿½ï¿½ï¿½Ö±ï¿½Ê¾ï¿½Ù¶ï¿½
                 map_data[i, j] = 0
     
 
     return map_data, start, end,mid ,robot_num , goods, boat_wharf
 
-# ¶ÁÈ¡µØÍ¼
-map_data, start, end = read_map('map.txt')
+# ï¿½ï¿½È¡ï¿½ï¿½Í¼
+# map_data, start, end = read_map('maps/map1.txt')
 
 #start[robot_num] = (i, j)
 #mid[goods] = (i, j)
-# ¿¼ÂÇ½«»õÎïµÄÇ°Á½¸öÊý¾Ý´æÎªÎ»ÖÃi,j£¬µÚÈý¸öÔªËØÎª¼ÛÖµ£»
-def extreme_point(start_, end_):  ##Ñ°ÕÒÂëÍ·´úÂë(È¥ÖØ¸´µãµÄ)
-    start_point = start_ [: ,1,2]
-    end_point = end_[: ,1,2]
-    start = np.repeat(start_point, end_.shape[0], axis = 0)#Ä¿±êµãÅòÕÍ
-    end = np.tile(end_point, (start_.shape[0], 1))   ##ÖÕµãÅòÕÍ
+# ï¿½ï¿½ï¿½Ç½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý´ï¿½ÎªÎ»ï¿½ï¿½i,jï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ôªï¿½ï¿½Îªï¿½ï¿½Öµï¿½ï¿½
 
-    row_sums = np.sum(np.abs(start -  end), axis = 1)##¼ÆËã²½ÊýÖ®ºÍ
-    # with_money = row_sums * mid[: , 3]     ##ºÍÇ®³Ë
+def extreme_point(start_, end_):  ##Ñ°ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½(È¥ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½)
+    start_point = [(item.x, item.y) for item in start_]
+    start = np.repeat(start_point, len(end_), axis = 0)#Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    end = np.tile(end_, (len(start_), 1))[:, :2]   ##ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½
 
-    sub_arrays = row_sums.reshape(-1, end_.shape[0])
-    min_indices = np.argmin(sub_arrays, axis = 1)##µÚi¸öÊý¾Ý¶ÔÓ¦µÄÊý×ÖÊÇËüÐèÒªÕÒµÄ¸Û¿Ú
-    # ÕÒµ½Ã¿¸ö×ÓÊý×éÖÐµÄ×îÐ¡Öµ¼°ÆäË÷Òý
+    row_sums = np.sum(np.abs(start -  end), axis = 1)##ï¿½ï¿½ï¿½ã²½ï¿½ï¿½Ö®ï¿½ï¿½
+    # with_money = row_sums * mid[: , 3]     ##ï¿½ï¿½Ç®ï¿½ï¿½
+
+    sub_arrays = row_sums.reshape(-1, len(end_))
+    min_indices = np.argmin(sub_arrays, axis = 1)##ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ÒµÄ¸Û¿ï¿½
+    # ï¿½Òµï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ð¡Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     min_values = np.min(sub_arrays, axis=1)
 
-    # ¹¹½¨ÐÂµÄ¾ØÕó
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ÂµÄ¾ï¿½ï¿½ï¿½
     new_matrix = np.zeros((10, 2))
-    # ´¦ÀíÖØ¸´ÊýÖµµÄÇé¿ö
+    # ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½
     unique_indices, counts = np.unique(min_indices, return_counts=True)
+    sub_arrays = sub_arrays.astype(np.float32)
     for idx, count in zip(unique_indices, counts):
         if count > 1:
-         # ÔÚ·Ö¸î¿éÖÐ³ýÈ¥¶ÔÓ¦ÐÐ
+         # ï¿½Ú·Ö¸ï¿½ï¿½ï¿½Ð³ï¿½È¥ï¿½ï¿½Ó¦ï¿½ï¿½
             sub_array = sub_arrays[idx]
             sub_array[min_indices[idx]] = np.inf
 
-            # ÖØÐÂÕÒµ½×îÐ¡Öµ¼°ÆäË÷Òý
+            # ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½Ð¡Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             new_min_value = np.min(sub_array)
             new_min_index = np.argmin(sub_array)
 
-            # ¸üÐÂÐÂµÄ¾ØÕó
+            # ï¿½ï¿½ï¿½ï¿½ï¿½ÂµÄ¾ï¿½ï¿½ï¿½
             new_matrix[idx, 0] = new_min_value
             new_matrix[idx, 1] = new_min_index
         else:
             new_matrix[idx, 0] = min_values[idx]
             new_matrix[idx, 1] = min_indices[idx]
-    robot_start = np.zeros((start_, 3))
-    robot_end = np.zeros((start_, 3))
-    robot_start[:,0] = np.arange(new_matrix)
+    robot_start = np.zeros((len(start_), 3))
+    robot_end = np.zeros((len(start_), 3))
+    robot_start[:,0] = np.arange(new_matrix.shape[0])
     robot_start[:,1:] = start_point 
     robot_end[:,0] = new_matrix[:,1]
     indices = robot_end[:, 0].astype(int)
-    robot_end[:, 1:] = end_point[indices, :]
+    robot_end[:, 1:] = end[indices, :]
     return (robot_start, robot_end)
 
 
-def bfs_find_nearest(grid, start ): ##Ñ°ÕÒ»õÎï´úÂë
+# def extreme_point(start_, end_):  ##Ñ°ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½(È¥ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½)
+#     start_point = start_ [: ,1,2]
+#     end_point = end_[: ,1,2]
+#     start = np.repeat(start_point, end_.shape[0], axis = 0)#Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#     end = np.tile(end_point, (start_.shape[0], 1))   ##ï¿½Õµï¿½ï¿½ï¿½ï¿½ï¿½
+
+#     row_sums = np.sum(np.abs(start -  end), axis = 1)##ï¿½ï¿½ï¿½ã²½ï¿½ï¿½Ö®ï¿½ï¿½
+#     # with_money = row_sums * mid[: , 3]     ##ï¿½ï¿½Ç®ï¿½ï¿½
+
+#     sub_arrays = row_sums.reshape(-1, end_.shape[0])
+#     min_indices = np.argmin(sub_arrays, axis = 1)##ï¿½ï¿½iï¿½ï¿½ï¿½ï¿½ï¿½Ý¶ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ÒµÄ¸Û¿ï¿½
+#     # ï¿½Òµï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ð¡Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#     min_values = np.min(sub_arrays, axis=1)
+
+#     # ï¿½ï¿½ï¿½ï¿½ï¿½ÂµÄ¾ï¿½ï¿½ï¿½
+#     new_matrix = np.zeros((10, 2))
+#     # ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½
+#     unique_indices, counts = np.unique(min_indices, return_counts=True)
+#     for idx, count in zip(unique_indices, counts):
+#         if count > 1:
+#          # ï¿½Ú·Ö¸ï¿½ï¿½ï¿½Ð³ï¿½È¥ï¿½ï¿½Ó¦ï¿½ï¿½
+#             sub_array = sub_arrays[idx]
+#             sub_array[min_indices[idx]] = np.inf
+
+#             # ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½Ð¡Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+#             new_min_value = np.min(sub_array)
+#             new_min_index = np.argmin(sub_array)
+
+#             # ï¿½ï¿½ï¿½ï¿½ï¿½ÂµÄ¾ï¿½ï¿½ï¿½
+#             new_matrix[idx, 0] = new_min_value
+#             new_matrix[idx, 1] = new_min_index
+#         else:
+#             new_matrix[idx, 0] = min_values[idx]
+#             new_matrix[idx, 1] = min_indices[idx]
+#     robot_start = np.zeros((start_, 3))
+#     robot_end = np.zeros((start_, 3))
+#     robot_start[:,0] = np.arange(new_matrix)
+#     robot_start[:,1:] = start_point 
+#     robot_end[:,0] = new_matrix[:,1]
+#     indices = robot_end[:, 0].astype(int)
+#     robot_end[:, 1:] = end_point[indices, :]
+#     return (robot_start, robot_end)
+
+
+def bfs_find_nearest(grid, start ): ##Ñ°ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     global aim_goods
-    # ¶¨ÒåÒÆ¶¯·½Ïò£¨ÉÏ£¬ÏÂ£¬×ó£¬ÓÒ£©
+    # ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï£ï¿½ï¿½Â£ï¿½ï¿½ï¿½ï¿½Ò£ï¿½
     directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    # ´´½¨¶ÓÁÐ£¬²¢½«Æðµã¼ÓÈë¶ÓÁÐ
+    # ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     queue = np.array([start])
-    # ¼ÇÂ¼ÒÑ·ÃÎÊµÄÎ»ÖÃ
+    # ï¿½ï¿½Â¼ï¿½Ñ·ï¿½ï¿½Êµï¿½Î»ï¿½ï¿½
     visited = np.zeros_like(grid)
     visited[start[0], start[1]] = 1
-    # ´ÓÆðµã¿ªÊ¼ËÑË÷
+    # ï¿½ï¿½ï¿½ï¿½ã¿ªÊ¼ï¿½ï¿½ï¿½ï¿½
     while queue:
         x, y = queue.popleft()
-        # ¼ì²éµ±Ç°Î»ÖÃÊÇ·ñÎªÄ¿±ê
+        # ï¿½ï¿½éµ±Ç°Î»ï¿½ï¿½ï¿½Ç·ï¿½ÎªÄ¿ï¿½ï¿½
         if grid[x][y] == 'T' and (x,y) not in aim_goods:
             aim_goods.append[(x, y)]
-            return ((x, y))  # ·µ»ØÕÒµ½µÄÄ¿±êÎ»ÖÃ
-        # ½«ÏàÁÚµÄÎ»ÖÃ¼ÓÈë¶ÓÁÐ
+            return ((x, y))  # ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½ï¿½Ä¿ï¿½ï¿½Î»ï¿½ï¿½
+        # ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Î»ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            # È·±£ÐÂÎ»ÖÃÔÚÍø¸ñ·¶Î§ÄÚ£¬ÇÒÎ´±»·ÃÎÊ£¬ÇÒ²»ÊÇÇ½±Ú
+            # È·ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½Ú£ï¿½ï¿½ï¿½Î´ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½Ò²ï¿½ï¿½ï¿½Ç½ï¿½ï¿½
             if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and (nx, ny) not in visited :
                 queue.append((nx, ny))
                 visited.add((nx, ny))
-    return None  # Èç¹ûÃ»ÓÐÕÒµ½Ä¿±ê£¬·µ»ØNone
+    return None  # ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½Òµï¿½Ä¿ï¿½ê£¬ï¿½ï¿½ï¿½ï¿½None
 
 def bfs_all (start_,grid):
     start_positions = start_[:,1:]

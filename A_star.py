@@ -184,7 +184,7 @@
 import numpy as np
 import random
 import time
-start_time = time.time()  
+# start_time = time.time()  
 class Node:
     def __init__(self, position, parent=None, g=0):
         self.position = position  #  
@@ -202,7 +202,7 @@ def get_adjacent_positions(current_position, avoid):
     valid_moves = [move for move in possible_moves if move not in avoid]
     return valid_moves
 
-def astar_search(start_point, end_point, avoid, goods):
+def astar_search(start_point, end_point, avoid, goods, id):
     open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
     searched_nodes_count = 0
@@ -212,7 +212,7 @@ def astar_search(start_point, end_point, avoid, goods):
         searched_nodes_count += 1
         if goods == 0 and searched_nodes_count > 80:
         #  
-            return [start_point]  #  
+            return [[start_point,i+id] for i in range(20)]  #  
         if current_node.position == tuple(end_point):  #  
             path = []
             while current_node:
@@ -260,29 +260,29 @@ def update_paths_if_shared_steps(paths):
 
 #####---------------------------------------------------------------------------------------------------------------------      
 #####nnext is fangzhen can delete
-map_size = 200
-map_grid = np.zeros((map_size, map_size), dtype=int)
-num_obstacles = map_size * map_size * 30 // 100
-avoid = set()
-#while len(avoid) < num_obstacles:
-#    obstacle = (random.randint(0, map_size-1), random.randint(0, map_size-1))
- ##   avoid.add(obstacle)
-for ob in avoid:
-    map_grid[ob] = 1
-start_points = []
-end_points = []
-for _ in range(10):
-    # 
-    while True:
-        start = (random.randint(0, map_size-1), random.randint(0, map_size-1))
-        if map_grid[start] == 0:
-            start_points.append(start)
-            break
-    while True:
-        end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
-        if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
-            end_points.append(end)
-            break    
+# map_size = 200
+# map_grid = np.zeros((map_size, map_size), dtype=int)
+# num_obstacles = map_size * map_size * 30 // 100
+# avoid = set()
+# #while len(avoid) < num_obstacles:
+# #    obstacle = (random.randint(0, map_size-1), random.randint(0, map_size-1))
+#  ##   avoid.add(obstacle)
+# for ob in avoid:
+#     map_grid[ob] = 1
+# start_points = []
+# end_points = []
+# for _ in range(10):
+#     # 
+#     while True:
+#         start = (random.randint(0, map_size-1), random.randint(0, map_size-1))
+#         if map_grid[start] == 0:
+#             start_points.append(start)
+#             break
+#     while True:
+#         end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
+#         if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
+#             end_points.append(end)
+#             break    
 
     
     # while True:
@@ -298,20 +298,20 @@ for _ in range(10):
 ###above could deleted
 ###------------------------------------------------------------------------------------------------------------------------------
 ## youhua suanfa
-paths = []
-goods = 0
-for start_point, end_point in zip(start_points, end_points):
-    path = astar_search(start_point, end_point, avoid, goods)
-    paths.append(path)
+# paths = []
+# goods = 0
+# for start_point, end_point in zip(start_points, end_points):
+#     path = astar_search(start_point, end_point, avoid, goods)
+#     paths.append(path)
      
-update_paths_if_shared_steps(paths)
-for i, path in enumerate(paths):
+# update_paths_if_shared_steps(paths)
+# for i, path in enumerate(paths):
 
-    print(f"Path from {start_points[i]} to {end_points[i]}: {path}")
+#     print(f"Path from {start_points[i]} to {end_points[i]}: {path}")
 
 
-end_time = time.time() 
-print(f"time: {end_time - start_time}  s")
+# end_time = time.time() 
+# print(f"time: {end_time - start_time}  s")
 #     [0, 0, 0, 0, 0],
 #     [0, 1, 1, 1, 0],
 #     [0, 1, 0, 0, 0],
