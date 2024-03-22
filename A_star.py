@@ -184,7 +184,7 @@
 import numpy as np
 import random
 import time
-# start_time = time.time()  
+start_time = time.time()  
 class Node:
     def __init__(self, position, parent=None, g=0):
         self.position = position  #  
@@ -202,6 +202,19 @@ def get_adjacent_positions(current_position, avoid):
     valid_moves = [move for move in possible_moves if move not in avoid]
     return valid_moves
 
+def get_direction(from_node, to_node):
+    dx = to_node[0] - from_node[0]
+    dy = to_node[1] - from_node[1]
+    if dx == 1 and dy == 0:
+        return 0  # right
+    elif dx == -1 and dy == 0:
+        return 1  # left
+    elif dx == 0 and dy == -1:
+        return 2  # up
+    elif dx == 0 and dy == 1:
+        return 3  # down
+    return None  # 
+
 def astar_search(start_point, end_point, avoid, goods, id):
     open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
@@ -212,26 +225,24 @@ def astar_search(start_point, end_point, avoid, goods, id):
         searched_nodes_count += 1
         if goods == 0 and searched_nodes_count > 80:
         #  
-            return [[start_point,i+id] for i in range(20)]  #  
+            return [[start_point,i+id] for i in range(20)], False  #  1-huo-matou-----2-huo-matou-huo+shijian-  gobal time  *hang*
         if current_node.position == tuple(end_point):  #  
             path = []
-            while current_node:
-                path.append((current_node.position, current_node.g))
+            while current_node and current_node.parent:
+                direction = get_direction(current_node.parent.position, current_node.position)
+                path.append((current_node.position, current_node.g, direction))
                 current_node = current_node.parent
+            path.append((start_point, 0, 'Start'))  # 'Start'
+            return path[::-1],True  # 
             
-            return path[::-1]  #  
-
         closed_set.add(current_node.position)
-
         for adjacent_position in get_adjacent_positions(current_node.position, avoid):
             if adjacent_position in closed_set:
                 continue
             new_node = Node(adjacent_position, current_node, current_node.g + 1)
             new_node.h = manhattan_distance(adjacent_position, tuple(end_point))  #  
-
             if not any(node.position == adjacent_position and new_node.g >= node.g for node in open_list):
                 open_list.append(new_node)
-
     return None
 
 def update_paths_if_shared_steps(paths):
@@ -260,29 +271,29 @@ def update_paths_if_shared_steps(paths):
 
 #####---------------------------------------------------------------------------------------------------------------------      
 #####nnext is fangzhen can delete
-# map_size = 200
-# map_grid = np.zeros((map_size, map_size), dtype=int)
-# num_obstacles = map_size * map_size * 30 // 100
-# avoid = set()
-# #while len(avoid) < num_obstacles:
-# #    obstacle = (random.randint(0, map_size-1), random.randint(0, map_size-1))
-#  ##   avoid.add(obstacle)
-# for ob in avoid:
-#     map_grid[ob] = 1
-# start_points = []
-# end_points = []
-# for _ in range(10):
-#     # 
-#     while True:
-#         start = (random.randint(0, map_size-1), random.randint(0, map_size-1))
-#         if map_grid[start] == 0:
-#             start_points.append(start)
-#             break
-#     while True:
-#         end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
-#         if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
-#             end_points.append(end)
-#             break    
+map_size = 200
+map_grid = np.zeros((map_size, map_size), dtype=int)
+num_obstacles = map_size * map_size * 30 // 100
+avoid = set()
+#while len(avoid) < num_obstacles:
+#    obstacle = (random.randint(0, map_size-1), random.randint(0, map_size-1))
+ ##   avoid.add(obstacle)
+for ob in avoid:
+    map_grid[ob] = 1
+start_points = []
+end_points = []
+for _ in range(10):
+    # 
+    while True:
+        start = (random.randint(0, map_size-1), random.randint(0, map_size-1))
+        if map_grid[start] == 0:
+            start_points.append(start)
+            break
+    while True:
+        end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
+        if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
+            end_points.append(end)
+            break    
 
     
     # while True:
@@ -298,20 +309,20 @@ def update_paths_if_shared_steps(paths):
 ###above could deleted
 ###------------------------------------------------------------------------------------------------------------------------------
 ## youhua suanfa
-# paths = []
-# goods = 0
-# for start_point, end_point in zip(start_points, end_points):
-#     path = astar_search(start_point, end_point, avoid, goods)
-#     paths.append(path)
+paths = []
+goods = 0
+for start_point, end_point in zip(start_points, end_points):
+    path = astar_search(start_point, end_point, avoid, goods)
+    paths.append(path)
      
-# update_paths_if_shared_steps(paths)
-# for i, path in enumerate(paths):
+update_paths_if_shared_steps(paths)
+for i, path in enumerate(paths):
 
-#     print(f"Path from {start_points[i]} to {end_points[i]}: {path}")
+    print(f"Path from {start_points[i]} to {end_points[i]}: {path}")
 
 
-# end_time = time.time() 
-# print(f"time: {end_time - start_time}  s")
+end_time = time.time() 
+print(f"time: {end_time - start_time}  s")
 #     [0, 0, 0, 0, 0],
 #     [0, 1, 1, 1, 0],
 #     [0, 1, 0, 0, 0],
