@@ -21,20 +21,16 @@ class Robot:
         self.status = status
         self.mbx = mbx
         self.mby = mby
+        self.stop = False
 
-    def move(self, id, direction):
-        if isinstance(id, int) and 0 <= id <= 9:
-            print("move", id, direction)
+    def move(self, direction):
+        print("move", self.robot_idx, direction)
 
-    def get(self, id):
-        if isinstance(id, int) and 0 <= id <= 9:
-            # self.status = 1
-            print("get", id)
+    def get(self):
+        print("get", self.robot_idx)
 
     def pull(self, id):
-        if isinstance(id, int) and 0 <= id <= 9:
-            # self.status = 0
-            print("pull", id)
+        print("pull", self.robot_idx)
 
 robot = [Robot(i) for i in range(robot_num)]
 
@@ -244,15 +240,39 @@ if __name__ == "__main__":
     # for i in range(len(berth)):
     #     print(sorted_berth[i].x, sorted_berth[i].y, sorted_berth[i].transport_time, sorted_berth[i].loading_speed)
     paths = []
+    robot_instructions_num = np.zeros(10, dtype=int)
     for zhen in range(1, 15001):
+        
         id = offlineInput()
         # id = Input()
-
         _, goal_for_each_robot = extreme_point(robot, goods_list)
         robot_pos = [(item.x, item.y) for item in robot]
-        for start_point, end_point in zip(robot_pos, goal_for_each_robot[:, 1:]):
-            path = astar_search(start_point, end_point, obstacle_list, 0, id)
-            paths.append(path)
+        if zhen == 1:
+            for idx, start_point, end_point in zip(range(10), robot_pos, goal_for_each_robot[:, 1:]):
+                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, 0, zhen)
+                paths.append(path)
+            for i in range(10):
+                robot_instructions_num[i] = len(paths[i])
+        # move robots
+        for idx, path in enumerate(paths):
+            if path[-1] == id:
+                robot[idx].move(path[0])
+                paths[idx] = path.pop(0)
+                robot_instructions_num[idx] -= 1
+        robot_finished = np.argwhere(robot_instructions_num == 0)
+        robot_finished_num = robot_finished.shape[0]
+        if robot_finished_num != 0:
+            for i in range(robot_finished_num):
+                robot_idx = robot_finished[i][0]
+                if robot[robot_idx].stop:
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+                elif robot[robot_idx].goods:
+                    robot[robot_idx].pull()
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+                else:
+                    robot[robot_idx].get()
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
+                paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
         pass
         # update_paths_if_shared_steps(paths)
         print("OK")
