@@ -90,7 +90,6 @@ def astar_search(start_point, end_point, avoid, goods):
             new_node.h = manhattan_distance(adjacent_position, tuple(end_point))  #  
             if not any(node.position == adjacent_position and new_node.g >= node.g for node in open_list):
                 open_list.append(new_node)
-    # return None
 
 def update_paths_if_shared_steps(paths):
     ## print( "path",path)

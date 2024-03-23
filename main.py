@@ -74,6 +74,7 @@ class Node:
         self.g = g
         self.h = 0
 
+
 def extreme_point(start_, end_):
     start_point = [(item.x, item.y) for item in start_]
     start = np.repeat(start_point, len(end_), axis = 0)
@@ -114,8 +115,42 @@ def manhattan_distance(start, end):
 def get_adjacent_positions(current_position, avoid):
     x, y = current_position
     possible_moves = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]  
+    #  
     valid_moves = [move for move in possible_moves if move not in avoid]
     return valid_moves
+
+def update_paths_if_shared_steps(paths):
+    ## print( "path",path)
+    for i in range(len(paths)):
+        for j in range(i + 1, len(paths)):
+            updated = False  #  
+            for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
+                for (point_j, cost_j), direction_j in paths[j]:
+                    #print ("position_j",point_i,point_j)
+                    if cost_j < id :
+                        paths.pop(i)
+                        ## 
+                    if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
+                        #   
+                        if index_i > 0:  #  
+                            #  
+                            new_cost = paths[i][index_i - 1][0][1] + 1
+                            paths[i][index_i - 1] = ((point_i, cost_i), 5)  #  
+                            paths[i].insert(index_i, ((point_i, new_cost), direction_i))  #  
+                            
+                            #  
+                            for k in range(index_i + 1, len(paths[i])):
+                                old_position, old_cost = paths[i][k][0]
+                                old_direction = paths[i][k][1]
+                                paths[i][k] = ((old_position, old_cost + 1), old_direction)
+                            
+                            updated = True  #  
+                            
+                            break  #  
+                if updated:
+                    break  #  
+            if updated:
+                break  #  
 
 def get_direction(from_node, to_node):
     dx = to_node[0] - from_node[0]
@@ -128,26 +163,57 @@ def get_direction(from_node, to_node):
         return 2  # up
     elif dx == 0 and dy == 1:
         return 3  # down
-    return None  # 
+    elif dx == 0 and dy == 0:
+        return 5  # stop
+    return 9  # 
 
-def astar_search(start_point, end_point, avoid, goods, id):
-    open_list = [Node(tuple(start_point))]
+def direction_to_delta(direction):
+    if direction == 0:  #  
+        return (1, 0)
+    elif direction == 1:  #  
+        return (-1, 0)
+    elif direction == 2:  #  
+        return (0, -1)
+    elif direction == 3:  #  
+        return (0, 1)
+    elif direction == 5: 
+        return (0, 0)
+    return False  #  
+
+def astar_search(start_point, end_point, avoid, goods):
+    global moving_path
+    global id
+    open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
     searched_nodes_count = 0
     while open_list:
         current_node = min(open_list, key=lambda node: node.g + node.h)
         open_list.remove(current_node)
         searched_nodes_count += 1
-        if goods == 0 and searched_nodes_count > 80:
-            return [[start_point,i+id] for i in range(20)], True
-        if current_node.position == tuple(end_point):
+        if goods == 0 and searched_nodes_count > 400:
+        #  
+            return [[(start_point,i+id),5] for i in range(20)], True #  1-huo-matou-----2-huo-matou-huo+shijian-  gobal time  *hang*
+        if current_node.position == tuple(end_point):  #  
             path = []
+
             while current_node and current_node.parent:
                 direction = get_direction(current_node.parent.position, current_node.position)
-                path.append((current_node.position, current_node.g, direction))
+                path.append(((current_node.position, current_node.g), direction))
+                #print("siyuanzu",path)
                 current_node = current_node.parent
-            path.append((start_point, 0, 'Start'))  # 'Start'
-            return path[::-1], False  # 
+            #returnpath = path[::-1]
+            
+            moving_path.append(path[::-1])
+            #print("eee",moving_path)
+            #returnpath = path[::-1]
+            if len(moving_path ) > 1:
+                update_paths_if_shared_steps(moving_path)
+                print("sha",len(moving_path),len(moving_path[0]))
+                now_path = moving_path[-1]
+                 
+                return now_path,False  # 
+            else:
+                return moving_path,False
             
         closed_set.add(current_node.position)
         for adjacent_position in get_adjacent_positions(current_node.position, avoid):
@@ -157,7 +223,6 @@ def astar_search(start_point, end_point, avoid, goods, id):
             new_node.h = manhattan_distance(adjacent_position, tuple(end_point))  #  
             if not any(node.position == adjacent_position and new_node.g >= node.g for node in open_list):
                 open_list.append(new_node)
-    return None
 
 def read_map():
     global ch
