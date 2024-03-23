@@ -180,9 +180,7 @@ def direction_to_delta(direction):
         return (0, 0)
     return False  #  
 
-def astar_search(start_point, end_point, avoid, goods):
-    global moving_path
-    global id
+def astar_search(start_point, end_point, avoid, goods, zhen, moving_path):
     open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
     searched_nodes_count = 0
@@ -387,7 +385,7 @@ if __name__ == "__main__":
         if zhen == 1:
             _, goal_for_each_robot = extreme_point(robot, goods_list)
             for idx, start_point, end_point in zip(range(10), robot_pos, goal_for_each_robot[:, 1:]):
-                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, robot[idx].goods, zhen)
+                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, robot[idx].goods, zhen, paths)
                 paths.append(path)
             for i in range(10):
                 robot_instructions_num[i] = len(paths[i])
@@ -418,7 +416,7 @@ if __name__ == "__main__":
                             break
                     goods_list.pop(goods_idx)
                     _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
-                paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
+                paths[robot_idx], robot[idx].stop = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, robot[idx].goods, zhen, paths)
         # update_paths_if_shared_steps(paths)
         
         for i in range(5):
