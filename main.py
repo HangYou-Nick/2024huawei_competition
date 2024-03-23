@@ -46,11 +46,12 @@ berth = [Berth(i) for i in range(berth_num)]
 
 
 class Boat:
-    def __init__(self, boat_idx, num=0, pos=0, status=0):
+    def __init__(self, boat_idx, num=0, pos=0, status=0, flag=0):
         self.boat_idx = boat_idx
         self.num = num
         self.pos = pos
         self.status = status
+        self.flag = flag
     def ship(self, berth_idx):
         print("ship", self.boat_idx, berth_idx)
     def go(self):
@@ -349,21 +350,17 @@ if __name__ == "__main__":
         # update_paths_if_shared_steps(paths)
         
         for i in range(5):
-            if zhen % 50 == 0:
-                flag += 1
-                if flag % 2 == 0:
-                    j = i + 5
-                else:
-                    j = i
+            if boat[i].flag % 2 == 0:
+                j = i
+            else:
+                j = i + 5
+            
 
             # 每次都是由虚拟点发往0-4号港口
             if boat[i].status == 1 and boat[i].pos == -1:
-                boat[i].ship(i)
-                boat[i].num = 0
-
-            # 如果pos属性和j不一样，则前往berth[j]
-            if boat[i].pos != j:
                 boat[i].ship(j)
+                boat[i].num = 0
+                boat[i].flag += 1
 
             # 如果船到了某个港后且正在装载货物，则维护穿上的货物数量，并且判断是否需要运往虚拟点
             if boat[i].status == 1 and boat[i].pos != -1:
