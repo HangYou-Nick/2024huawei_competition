@@ -318,11 +318,11 @@ if __name__ == "__main__":
         
         # id = offlineInput()
         id = Input()
-        _, goal_for_each_robot = extreme_point(robot, goods_list)
         robot_pos = [(item.x, item.y) for item in robot]
         if zhen == 1:
+            _, goal_for_each_robot = extreme_point(robot, goods_list)
             for idx, start_point, end_point in zip(range(10), robot_pos, goal_for_each_robot[:, 1:]):
-                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, 0, zhen)
+                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, robot[idx].goods, zhen)
                 paths.append(path)
             for i in range(10):
                 robot_instructions_num[i] = len(paths[i])
@@ -337,23 +337,23 @@ if __name__ == "__main__":
                 robot_instructions_num[idx] -= 1
         robot_finished = np.argwhere(robot_instructions_num == 0)
         robot_finished_num = robot_finished.shape[0]
-        # if robot_finished_num != 0:
-        #     for i in range(robot_finished_num):
-        #         robot_idx = robot_finished[i][0]
-        #         if robot[robot_idx].stop:
-        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
-        #         elif robot[robot_idx].goods:
-        #             robot[robot_idx].pull()
-        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
-        #         else:
-        #             robot[robot_idx].get()
-        #             for idx, item in enumerate(goods_list):
-        #                 if robot[robot_idx].x == item[0] and robot[robot_idx].y == item[1]:
-        #                     goods_idx = idx
-        #                     break
-        #             goods_list.pop(goods_idx)
-        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
-        #         paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
+        if robot_finished_num != 0:
+            for i in range(robot_finished_num):
+                robot_idx = robot_finished[i][0]
+                if robot[robot_idx].stop:
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+                elif robot[robot_idx].goods:
+                    robot[robot_idx].pull()
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+                else:
+                    robot[robot_idx].get()
+                    for idx, item in enumerate(goods_list):
+                        if robot[robot_idx].x == item[0] and robot[robot_idx].y == item[1]:
+                            goods_idx = idx
+                            break
+                    goods_list.pop(goods_idx)
+                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
+                paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
         # update_paths_if_shared_steps(paths)
         
         for i in range(5):
