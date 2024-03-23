@@ -67,6 +67,13 @@ goods_list = []
 destination = []
 obstacle_list = []
 
+class Node:
+    def __init__(self, position, parent=None, g=0):
+        self.position = position  #  
+        self.parent = parent
+        self.g = g
+        self.h = 0
+
 def extreme_point(start_, end_):
     start_point = [(item.x, item.y) for item in start_]
     start = np.repeat(start_point, len(end_), axis = 0)
@@ -78,7 +85,7 @@ def extreme_point(start_, end_):
     min_indices = np.argmin(sub_arrays, axis = 1)
     min_values = np.min(sub_arrays, axis=1)
 
-    new_matrix = np.zeros((10, 2))
+    new_matrix = np.zeros((len(start_), 2))
     unique_indices, counts = np.unique(min_indices, return_counts=True)
     sub_arrays = sub_arrays.astype(np.float32)
     for idx, count in zip(unique_indices, counts):
@@ -321,6 +328,8 @@ if __name__ == "__main__":
                 robot_instructions_num[i] = len(paths[i])
         # move robots
         for idx, path in enumerate(paths):
+            if len(path) == 0:
+                continue
             if path[0][1] == zhen:
                 if len(path[0]) == 3:
                     robot[idx].move(path[0][-1])
@@ -328,23 +337,23 @@ if __name__ == "__main__":
                 robot_instructions_num[idx] -= 1
         robot_finished = np.argwhere(robot_instructions_num == 0)
         robot_finished_num = robot_finished.shape[0]
-        if robot_finished_num != 0:
-            for i in range(robot_finished_num):
-                robot_idx = robot_finished[i][0]
-                if robot[robot_idx].stop:
-                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
-                elif robot[robot_idx].goods:
-                    robot[robot_idx].pull()
-                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
-                else:
-                    robot[robot_idx].get()
-                    for idx, item in enumerate(goods_list):
-                        if robot[robot_idx].x == item[0] and robot[robot_idx].y == item[1]:
-                            goods_idx = idx
-                            break
-                    goods_list.pop(goods_idx)
-                    _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
-                paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
+        # if robot_finished_num != 0:
+        #     for i in range(robot_finished_num):
+        #         robot_idx = robot_finished[i][0]
+        #         if robot[robot_idx].stop:
+        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+        #         elif robot[robot_idx].goods:
+        #             robot[robot_idx].pull()
+        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], goods_list)
+        #         else:
+        #             robot[robot_idx].get()
+        #             for idx, item in enumerate(goods_list):
+        #                 if robot[robot_idx].x == item[0] and robot[robot_idx].y == item[1]:
+        #                     goods_idx = idx
+        #                     break
+        #             goods_list.pop(goods_idx)
+        #             _, goal_for_each_robot = extreme_point([robot[robot_idx]], destination)
+        #         paths[robot_idx] = astar_search(robot_pos[robot_idx], goal_for_each_robot, obstacle_list, 0, zhen)
         # update_paths_if_shared_steps(paths)
         
         for i in range(5):
@@ -354,19 +363,18 @@ if __name__ == "__main__":
                 j = i + 5
             
 
-            # 每次都是由虚拟点发往0-4号港口
             if boat[i].status == 1 and boat[i].pos == -1:
                 boat[i].ship(j)
                 boat[i].num = 0
                 boat[i].flag += 1
 
-            # 如果船到了某个港后且正在装载货物，则维护穿上的货物数量，并且判断是否需要运往虚拟点
+
             if boat[i].status == 1 and boat[i].pos != -1:
-                # 判断是否需要将货物运往虚拟点
-                if boat_capacity - boat[i].num < berth[j].loading_speed or zhen >= 15000 - max_transport_time - 1:
+
+                # if boat_capacity - boat[i].num < berth[j].loading_speed or zhen >= 15000 - max_transport_time - 1:
+                if boat_capacity - boat[i].num < berth[j].loading_speed:
                     boat[i].go()
 
-                # 更新船只上的货物数量
                 if berth[i].all_goods >= berth[i].loading_speed:
                     boat[i].num += berth[i].loading_speed
                     berth[i].all_goods -= berth[i].loading_speed
