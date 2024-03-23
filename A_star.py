@@ -46,10 +46,10 @@ def direction_to_delta(direction):
         return (0, 1)
     elif direction == 5: 
         return (0, 0)
-    return False  #  
+    return ()  #  
 
-def astar_search(start_point, end_point, avoid, goods):
-    global moving_path
+def astar_search(start_point, end_point, avoid, goods,moving_path):
+     
     global id
     open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
@@ -58,7 +58,7 @@ def astar_search(start_point, end_point, avoid, goods):
         current_node = min(open_list, key=lambda node: node.g + node.h)
         open_list.remove(current_node)
         searched_nodes_count += 1
-        if goods == 0 and searched_nodes_count > 400:
+        if goods == 0 and searched_nodes_count > 400000:
         #  
             return [[(start_point,i+id),5] for i in range(20)], True #  1-huo-matou-----2-huo-matou-huo+shijian-  gobal time  *hang*
         if current_node.position == tuple(end_point):  #  
@@ -75,13 +75,15 @@ def astar_search(start_point, end_point, avoid, goods):
             #print("eee",moving_path)
             #returnpath = path[::-1]
             if len(moving_path ) > 1:
-                update_paths_if_shared_steps(moving_path)
-                print("sha",len(moving_path),len(moving_path[0]))
+                moving_path = update_paths_if_shared_steps(moving_path)
+                 
+                # print("sha",len(moving_path),len(moving_path[0]))
                 now_path = moving_path[-1]
                  
-                return now_path,False  # 
+                return now_path,moving_path,False  # 
             else:
-                return moving_path,False
+                now_path = moving_path
+                return now_path,moving_path,False
             
         closed_set.add(current_node.position)
         for adjacent_position in get_adjacent_positions(current_node.position, avoid):
@@ -95,39 +97,81 @@ def astar_search(start_point, end_point, avoid, goods):
 
 def update_paths_if_shared_steps(paths):
     ## print( "path",path)
-    for i in range(len(paths)):
-        for j in range(i + 1, len(paths)):
-            updated = False  #  
-            for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
-                for (point_j, cost_j), direction_j in paths[j]:
-                    #print ("position_j",point_i,point_j)
-                    if cost_j < id :
-                        paths.pop(i)
-                        ## 
-                    if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
-                        #   
-                        if index_i > 0:  #  
-                            #  
-                            new_cost = paths[i][index_i - 1][0][1] + 1
-                            paths[i][index_i - 1] = ((point_i, cost_i), 5)  #  
-                            paths[i].insert(index_i, ((point_i, new_cost), direction_i))  #  
+    if not paths:  # 
+        return
+
+    #  
+    last_path = paths[-1]
+    #  
+    ci = 0
+    #  
+    for index_last, temp in enumerate(last_path):
+        point_last, cost_last, direction_last=temp[0][0], temp[0][1], temp[1]
+        for i in range(len(paths) - 1):  #  
+            for a in paths[i]:
+                temp, direction_i=a[0],a[1]
+                point_i, cost_i = temp[0], temp[1]
+                # print(type(list(point_i)), type(list(direction_to_delta(direction_i))))
+                while (point_i == point_last and cost_last == cost_i) or \
+                            ([x + y for x, y in zip(list(point_i), list(direction_to_delta(direction_i)))]==list(point_last) and \
+                            [x + y for x, y in zip(list(point_last), list(direction_to_delta(direction_last) ))]== list(point_i)):
+                    ci +=1
+                    if (ci >20):
+                        last_path.insert(index_last,[[[point_last,i+id],5] for i in range(20-index_last)])
+                        return paths
+                    if index_last > 0:  #  
+                        
+                        copied_point = last_path[index_last - 1]
+                        last_path[index_last - 1] = [[copied_point[0][0], copied_point[0][1]], 5]
+                        new_point = [[copied_point[0][0][0], copied_point[0][0][1]], copied_point[0][1] + 1], copied_point[1]
+                        last_path.insert(index_last, new_point)
+                        for j in range(index_last, len(last_path)):
+                            point = last_path[j]
+#         #  
+                            last_path[j] = [[point[0][0][0], point[0][0][1]], point[0][1] + 1], point[1]
+
+                        
+                    
+                    
+
+    return paths
+    # 
+ 
+        # paths[-1] = last_path
+
+    # for index_last, ((point_last, cost_last), direction_last) in enumerate(last_path):
+    #     for i in range(len(paths) - 1):  
+    #         updated = False  #  
+    #         for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
+    #             for (point_j, cost_j), direction_j in paths[j]:
+    #                 #print ("position_j",point_i,point_j)
+    #                 if cost_j < id :
+    #                     paths.pop(i)
+    #                     ## 
+    #                 if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
+    #                     #   
+    #                     if index_i > 0:  #  
+    #                         #  
+    #                         new_cost = paths[-1][index_i - 1][0][1] + 1
+    #                         paths[-1][index_i - 1] = ((point_i, cost_i), 5)  #  
+    #                         paths[-1].insert(index_i, ((point_i, new_cost), direction_i))  #  
                             
-                            #  
-                            for k in range(index_i + 1, len(paths[i])):
-                                old_position, old_cost = paths[i][k][0]
-                                old_direction = paths[i][k][1]
-                                paths[i][k] = ((old_position, old_cost + 1), old_direction)
+    #                         #  
+    #                         for k in range(index_i + 1, len(paths[i])):
+    #                             old_position, old_cost = paths[i][k][0]
+    #                             old_direction = paths[i][k][1]
+    #                             paths[i][k] = ((old_position, old_cost + 1), old_direction)
                             
-                            updated = True  #  
+    #                         updated = True  #  
                             
-                            break  #  
-                if updated:
-                    break  #  
-            if updated:
-                break  #  
+    #                         break  #  
+    #             if updated:
+    #                 break  #  
+    #         if updated:
+    #             break  #  
 #####---------------------------------------------------------------------------------------------------------------------      
 #####nnext is fangzhen can delete
-map_size = 200
+map_size = 50
 map_grid = np.zeros((map_size, map_size), dtype=int)
 num_obstacles = map_size * map_size * 30 // 100
 avoid = set()
@@ -141,7 +185,7 @@ end_points = []
 for _ in range(10):
     # 
     while True:
-        start = (random.randint(50, map_size-51), random.randint(50, map_size-51))
+        start = (random.randint(20 , map_size-20), random.randint(20, map_size-21))
         if map_grid[start] == 0:
             start_points.append(start)
             break
@@ -155,11 +199,11 @@ paths = []
 goods = 0
 id = 1
 pre_time = time.time() 
-moving_path= []
+moving_path = []
 ### youhangzhixing
 for start_point, end_point in zip(start_points, end_points):
 
-    Apath,_ = astar_search(start_point, end_point, avoid, goods)
+    Apath,moving_path,_ = astar_search(start_point, end_point, avoid, goods,moving_path)
 
     ##print("mmm",astar_search(start_point, end_point, avoid, goods,id))
     ##print("yinyongpath",Apath)
