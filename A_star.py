@@ -1,186 +1,3 @@
-# import numpy as np
-
-# def manhattan_distance(point1, point2):
-#     return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
-
-# def is_valid_point(point, grid):
-#     rows, cols = grid.shape
-#     return 0 <= point[0] < rows and 0 <= point[1] < cols and grid[point[0], point[1]] == 0
-
-# def reconstruct_path(came_from, current):
-#     path = [current]
-#     while current in came_from:
-#         current = came_from[current]
-#         path.insert(0, current)
-#     return path
-
-# def get_neighbors(point, grid, avoid_points, current_idx, path):
-#     neighbors = []
-#     rows, cols = grid.shape
-#     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-#         neighbor = (point[0] + move[0], point[1] + move[1])
-#         if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and grid[neighbor[0], neighbor[1]] == 0:
-#             if 0 <= neighbor[0] <= rows - 1 and 0 <= neighbor[1] <= cols - 1:
-#                 if not any(avoid_idx == current_idx and avoid_coord == neighbor for avoid_idx, avoid_coord in avoid_points):
-#                     neighbors.append(neighbor)
-#     return neighbors
-
-# def astar_search(start, goal, grid, avoid_points, path):
-
-#     open_set = []
-#     closed_set = set()
-#     came_from = {}
-#     g_score = {tuple(start): 0}
-#     f_score = {tuple(start): manhattan_distance(start, goal)}
-#     open_set.append((f_score[tuple(start)], tuple(start)))
-#     path = []   
-
-#     while open_set:
-#         _, current = open_set.pop(0)
-#         if current == tuple(goal):
-#             path = reconstruct_path(came_from, current)
-
-#             final_path = []
-#             for idx, point in enumerate(path):
-#                 final_path.append(point)
-
-#             return final_path
-#         closed_set.add(current)
-#         current_idx = path.index(current) if current in path else None
-#         for neighbor in get_neighbors(current, grid, avoid_points, current_idx, path):
-#             if neighbor in closed_set:
-#                 continue
-#             tentative_g_score = g_score[current] + 1
-#             if tuple(neighbor) not in [item[1] for item in open_set] or tentative_g_score < g_score.get(tuple(neighbor), float('inf')):
-#                 came_from[tuple(neighbor)] = current
-#                 g_score[tuple(neighbor)] = tentative_g_score
-#                 f_score[tuple(neighbor)] = tentative_g_score + manhattan_distance(neighbor, goal)
-#                 open_set.append((f_score[tuple(neighbor)], tuple(neighbor)))
-#         open_set.sort(key=lambda x: x[0])
-
-#     return None
-
-# def is_obstacle(avoid_coord, point, path, idx):
-#     if abs(idx - avoid_coord[0]) == 1:
-#         direction = avoid_coord[1]
-#         target_direction = get_direction_from_point(point, path, idx)
-#         if target_direction is not None and direction == get_opposite_direction(target_direction):
-#             return True
-#     return False
-
-# def get_opposite_direction(direction):
-    
-#     opposite_directions = {0: 1, 1: 0, 2: 3, 3: 2}
-#     return opposite_directions.get(direction)
-                                                                                                                                               
-# def get_direction_from_point(point, path, idx):
-#     if idx < len(path) - 1:
-#         next_point = path[idx + 1]
-#         if next_point[0] == point[0] and next_point[1] == point[1] + 1:
-#             return 0
-#         elif next_point[0] == point[0] and next_point[1] == point[1] - 1:
-#             return 1
-#         elif next_point[0] == point[0] + 1 and next_point[1] == point[1]:
-#             return 2
-#         elif next_point[0] == point[0] - 1 and next_point[1] == point[1]:
-#             return 3
-#     return None
-
-
-# starts = [[0, 0],[0, 1],[4,  0]]
-# goals =  [[4, 4],[2, 3],[0, 4]]
-# grid = np.array([
-#     [0, 0, 0, 0, 0],
-#     [0, 1, 1, 1, 0],
-#     [0, 1, 0, 0, 0],
-#     [0, 1, 1, 1, 0],
-#     [0, 0, 0, 0, 0]
-# ])
-# avoid_points = set()
-# for start, goal in zip(starts, goals):
-#     path = astar_search(start, goal, grid, avoid_points, [])
-#     if path:
-#         for idx, point in enumerate(path):
-#             avoid_points.add((idx, point))
-#         print("Path from", start, "to", goal, ":", path)
-
-# print("Avoid points:", avoid_points)
-
-# import numpy as np
-
-# def manhattan_distance(point1, point2):
-#     return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
-
-# def is_valid_point(point, grid):
-#     rows, cols = grid.shape
-#     return 0 <= point[0] < rows and 0 <= point[1] < cols and grid[point[0], point[1]] == 0
-
-# def get_neighbors(point, grid):
-#     neighbors = []
-#     rows, cols = grid.shape
-#     for move in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-#         neighbor = (point[0] + move[0], point[1] + move[1])
-#         if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and grid[neighbor[0], neighbor[1]] == 0:
-#             neighbors.append(neighbor)
-#     return neighbors
-
-# def reconstruct_path(came_from, current):
-#     path = [current]
-#     while current in came_from:
-#         current = came_from[current]
-#         path.insert(0, current)
-#     return path
-
-# def astar_search(start, goal, grid, avoid_points):
-#     open_set = []
-#     closed_set = set()
-#     came_from = {}
-#     g_score = {tuple(start): 0}
-#     f_score = {tuple(start): manhattan_distance(start, goal)}
-#     open_set.append((f_score[tuple(start)], tuple(start)))
-#     while open_set:
-#         _, current = open_set.pop(0)
-#         if current == tuple(goal):
-#             path = reconstruct_path(came_from, current)
-            
-#             numbered_path = [(point, idx) for idx, point in enumerate(path)]
-#             numbered_path.sort(key=lambda x: x[1])
-#             path = [point for point, _ in numbered_path]
-            
-#             path = [point for point in path if point not in avoid_points and (point, path.index(point)) not in avoid_points]
-#             return path
-#         closed_set.add(current)
-#         for neighbor in get_neighbors(current, grid):
-#             if neighbor in avoid_points:
-#                 continue
-#             tentative_g_score = g_score[current] + 1
-#             if neighbor in closed_set or (tuple(neighbor) in g_score and tentative_g_score >= g_score[tuple(neighbor)]):
-#                 continue
-#             if tuple(neighbor) not in [item[1] for item in open_set] or tentative_g_score < g_score.get(tuple(neighbor), float('inf')):
-#                 came_from[tuple(neighbor)] = current
-#                 g_score[tuple(neighbor)] = tentative_g_score
-#                 f_score[tuple(neighbor)] = tentative_g_score + manhattan_distance(neighbor, goal)
-#                 open_set.append((f_score[tuple(neighbor)], tuple(neighbor)))
-#                 open_set.sort(key=lambda x: x[0])
-#     return None
-
-
-# starts = [[0, 0], [0, 1]]
-# goals = [[4, 4], [2, 3]]
-# grid = np.array([
-#     [0, 0, 0, 0, 0],
-#     [0, 1, 1, 1, 0],
-#     [0, 1, 0, 0, 0],
-#     [0, 1, 1, 1, 0],
-#     [0, 1, 0, 0, 0]
-# ])
-# avoid_points = set()
-# for start, goal in zip(starts, goals):
-#     path = astar_search(start, goal, grid, avoid_points)
-#     if path:
-#         avoid_points.update(path)
-#         print("Path from", start, "to", goal, ":", path)
-# print("Avoid points:", avoid_points)
 import numpy as np
 import random
 import time
@@ -213,9 +30,26 @@ def get_direction(from_node, to_node):
         return 2  # up
     elif dx == 0 and dy == 1:
         return 3  # down
-    return None  # 
+    elif dx == 0 and dy == 0:
+        return 5  # stop
+    return 9  # 
 
-def astar_search(start_point, end_point, avoid, goods, id):
+def direction_to_delta(direction):
+    if direction == 0:  #  
+        return (1, 0)
+    elif direction == 1:  #  
+        return (-1, 0)
+    elif direction == 2:  #  
+        return (0, -1)
+    elif direction == 3:  #  
+        return (0, 1)
+    elif direction == 5: 
+        return (0, 0)
+    return False  #  
+
+def astar_search(start_point, end_point, avoid, goods):
+    global moving_path
+    global id
     open_list = [Node(tuple(start_point))]  #  
     closed_set = set()
     searched_nodes_count = 0
@@ -223,17 +57,30 @@ def astar_search(start_point, end_point, avoid, goods, id):
         current_node = min(open_list, key=lambda node: node.g + node.h)
         open_list.remove(current_node)
         searched_nodes_count += 1
-        if goods == 0 and searched_nodes_count > 80:
+        if goods == 0 and searched_nodes_count > 400:
         #  
-            return [[start_point,i+id] for i in range(20)], False  #  1-huo-matou-----2-huo-matou-huo+shijian-  gobal time  *hang*
+            return [[(start_point,i+id),5] for i in range(20)], True #  1-huo-matou-----2-huo-matou-huo+shijian-  gobal time  *hang*
         if current_node.position == tuple(end_point):  #  
             path = []
+
             while current_node and current_node.parent:
                 direction = get_direction(current_node.parent.position, current_node.position)
-                path.append((current_node.position, current_node.g, direction))
+                path.append(((current_node.position, current_node.g), direction))
+                #print("siyuanzu",path)
                 current_node = current_node.parent
-            path.append((start_point, 0, 'Start'))  # 'Start'
-            return path[::-1],True  # 
+            #returnpath = path[::-1]
+            
+            moving_path.append(path[::-1])
+            #print("eee",moving_path)
+            #returnpath = path[::-1]
+            if len(moving_path ) > 1:
+                update_paths_if_shared_steps(moving_path)
+                print("sha",len(moving_path),len(moving_path[0]))
+                now_path = moving_path[-1]
+                 
+                return now_path,False  # 
+            else:
+                return moving_path,False
             
         closed_set.add(current_node.position)
         for adjacent_position in get_adjacent_positions(current_node.position, avoid):
@@ -243,32 +90,40 @@ def astar_search(start_point, end_point, avoid, goods, id):
             new_node.h = manhattan_distance(adjacent_position, tuple(end_point))  #  
             if not any(node.position == adjacent_position and new_node.g >= node.g for node in open_list):
                 open_list.append(new_node)
-    return None
+    # return None
 
 def update_paths_if_shared_steps(paths):
-    #  
+    ## print( "path",path)
     for i in range(len(paths)):
         for j in range(i + 1, len(paths)):
-            #  
-            for point_i in paths[i]:
-                if point_i in paths[j]:
-                    #  
-                    update_path_index = i  # 
-                    update_path = paths[update_path_index]
-                    point_index = update_path.index(point_i)
-
-                    #  
-                    if point_index > 0:
-                        # 
-                        prev_point = (update_path[point_index - 1][0], update_path[point_index - 1][1] + 1)
-                        #  
-                        update_path.insert(point_index, prev_point)
-                        #  
-                        for k in range(point_index + 1, len(update_path)):
-                            update_path[k] = (update_path[k][0], update_path[k][1] + 1)
-                        #  
-                        break  #  
-
+            updated = False  #  
+            for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
+                for (point_j, cost_j), direction_j in paths[j]:
+                    #print ("position_j",point_i,point_j)
+                    if cost_j < id :
+                        paths.pop(i)
+                        ## 
+                    if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
+                        #   
+                        if index_i > 0:  #  
+                            #  
+                            new_cost = paths[i][index_i - 1][0][1] + 1
+                            paths[i][index_i - 1] = ((point_i, cost_i), 5)  #  
+                            paths[i].insert(index_i, ((point_i, new_cost), direction_i))  #  
+                            
+                            #  
+                            for k in range(index_i + 1, len(paths[i])):
+                                old_position, old_cost = paths[i][k][0]
+                                old_direction = paths[i][k][1]
+                                paths[i][k] = ((old_position, old_cost + 1), old_direction)
+                            
+                            updated = True  #  
+                            
+                            break  #  
+                if updated:
+                    break  #  
+            if updated:
+                break  #  
 #####---------------------------------------------------------------------------------------------------------------------      
 #####nnext is fangzhen can delete
 map_size = 200
@@ -285,44 +140,45 @@ end_points = []
 for _ in range(10):
     # 
     while True:
-        start = (random.randint(0, map_size-1), random.randint(0, map_size-1))
+        start = (random.randint(50, map_size-51), random.randint(50, map_size-51))
         if map_grid[start] == 0:
             start_points.append(start)
             break
     while True:
-        end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
+        end = (start[0] + random.randint(-10, 10), start[0] + random.randint(-10, 10))
         if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
             end_points.append(end)
             break    
 
-    
-    # while True:
-    #     end = (start[0] + random.randint(-20, 20), start[1] + random.randint(-20, 20))
-    #     if map_grid[end] == 0 and end not in start_points and 0 <= end[0] < map_size and 0 <= end[1] < map_size:
-    #         end_points.append(end)
-    #         break
-# start_points = [(4, 2), (0, 2)]
-# end_points = [(0, 4), (4, 4)]
-# #  
-# avoid = [(1, 1), (1, 2), (1, 3),(2, 1), (3, 1), (3, 2),(3, 3),(4, 1)]
-        
-###above could deleted
-###------------------------------------------------------------------------------------------------------------------------------
-## youhua suanfa
 paths = []
 goods = 0
+id = 1
+pre_time = time.time() 
+moving_path= []
+### youhangzhixing
 for start_point, end_point in zip(start_points, end_points):
-    path = astar_search(start_point, end_point, avoid, goods)
-    paths.append(path)
-     
-update_paths_if_shared_steps(paths)
-for i, path in enumerate(paths):
 
-    print(f"Path from {start_points[i]} to {end_points[i]}: {path}")
+    Apath,_ = astar_search(start_point, end_point, avoid, goods)
+
+    ##print("mmm",astar_search(start_point, end_point, avoid, goods,id))
+    ##print("yinyongpath",Apath)
+#paths.append(Apath)
+# 
+ptime = time.time() 
+print("shicha",ptime-pre_time)
+pre_time = ptime
+mid_time = time.time() 
+## 
+update_paths_if_shared_steps(moving_path)## 
+#
+for i, Apath in enumerate(paths):
+
+    print(f"Path from {start_points[i]} to {end_points[i]}: {Apath}")
 
 
 end_time = time.time() 
-print(f"time: {end_time - start_time}  s")
+print(f"time: {end_time - mid_time}  s")
+print(f"time: {mid_time - start_time}  s")
 #     [0, 0, 0, 0, 0],
 #     [0, 1, 1, 1, 0],
 #     [0, 1, 0, 0, 0],
