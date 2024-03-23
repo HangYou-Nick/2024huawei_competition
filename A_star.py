@@ -78,9 +78,10 @@ def astar_search(start_point, end_point, avoid, goods):
                 print("sha",len(moving_path),len(moving_path[0]))
                 now_path = moving_path[-1]
                  
-                return now_path,False  # 
+                return now_path, moving_path, False  # 
             else:
-                return moving_path,False
+                now_path = moving_path
+                return now_path,moving_path,False
             
         closed_set.add(current_node.position)
         for adjacent_position in get_adjacent_positions(current_node.position, avoid):
@@ -99,8 +100,8 @@ def update_paths_if_shared_steps(paths):
             for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
                 for (point_j, cost_j), direction_j in paths[j]:
                     #print ("position_j",point_i,point_j)
-                    if cost_j < id :
-                        paths.pop(i)
+                    # if cost_j < id :
+                    #     paths.pop(i)
                         ## 
                     if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
                         #   

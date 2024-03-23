@@ -127,8 +127,8 @@ def update_paths_if_shared_steps(paths):
             for index_i, ((point_i, cost_i), direction_i) in enumerate(paths[i]):
                 for (point_j, cost_j), direction_j in paths[j]:
                     #print ("position_j",point_i,point_j)
-                    if cost_j < id :
-                        paths.pop(i)
+                    # if cost_j < id :
+                    #     paths.pop(i)
                         ## 
                     if (point_i == point_j and cost_j == cost_i) or (point_i + direction_to_delta(direction_i)== point_j and point_j+direction_to_delta(direction_j) == point_i): #  
                         #   
@@ -206,7 +206,6 @@ def astar_search(start_point, end_point, avoid, goods, zhen, moving_path):
             #returnpath = path[::-1]
             if len(moving_path ) > 1:
                 update_paths_if_shared_steps(moving_path)
-                print("sha",len(moving_path),len(moving_path[0]))
                 now_path = moving_path[-1]
                  
                 return now_path,False  # 
@@ -385,8 +384,9 @@ if __name__ == "__main__":
         if zhen == 1:
             _, goal_for_each_robot = extreme_point(robot, goods_list)
             for idx, start_point, end_point in zip(range(10), robot_pos, goal_for_each_robot[:, 1:]):
-                path, robot[idx].stop = astar_search(start_point, end_point, obstacle_list, robot[idx].goods, zhen, paths)
-                paths.append(path)
+                path_idx, robot[idx].stop, paths = astar_search(start_point, end_point, obstacle_list, robot[idx].goods, zhen, paths)
+                
+                # paths.append(path)
             for i in range(10):
                 robot_instructions_num[i] = len(paths[i])
         # move robots
