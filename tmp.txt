@@ -1,0 +1,32 @@
+In order to tackle the first issue, scholars have proposed various multimodal fusion methods for RGB-T object detection.
+Based on the different positions of multimodal information
+fusion, it can be categorized into pixel-level fusion, featurelevel fusion, and decision-level fusion [2]. Pixel-level fusion
+method [1] first get a pixel-fusion image, then fed it into
+the detection network. Feature-level fusion method [3] [4]
+typically involve the separate extraction of feature maps from
+infrared and visible light images. Subsequently, fusion of the
+feature maps from different modalities is achieved through
+techniques such as channel stacking, element-wise addition,
+and attention mechanisms. Decision-level fusion method [5]
+involves feeding the images from the two modalities into the
+detection network separately, and then performing decisionlevel fusion based on Bayesian probabilities on the two sets
+of detection results.
+
+
+To address the second issue, some recent studies [1] [6] aim
+to achieve fusion and detection tasks through a serial method.
+Inspired by task-driven networks [7] [8], they feed the outputs
+of the fusion network into the detection network, and then
+linearly combine the loss functions of both tasks to train them
+simultaneously. This method has the advantage of enabling
+the fusion network to generate fusion results which are better
+suited for the detection task. Ingeniously, the improvement
+in performance of the downstream detection task, in turn,
+underscores the superiority of the upstream image fusion
+method from another perspective. However, the task-driven
+approach leads to large parameters and tends to focus more on
+the fusion task. Sometimes, downstream task is treated merely
+as auxiliary task and is not given due importance. Moreover,
+the networks for the two tasks are only connected through the
+loss functions, lacking structural interaction. This results in a
+limited improvement in the performance of both tasks.
