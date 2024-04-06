@@ -7,7 +7,7 @@ typically involve the separate extraction of feature maps from
 infrared and visible light images. Subsequently, fusion of the
 feature maps from different modalities is achieved through
 techniques such as channel stacking, element-wise addition,
-and attention mechanisms. Decision-level fusion method [5]
+and attention mechanisms. this description has been modified by Hang You
 involves feeding the images from the two modalities into the
 detection network separately, and then performing decisionlevel this description has been modified by Hang You
 This line has been modified by Hang You.
@@ -25,7 +25,7 @@ This line has been modified by Hang You.
 underscores the superiority of the upstream image fusion
 method from another perspective. However, the task-driven
 approach leads to large parameters and tends to focus more on
-the fusion task. Sometimes, downstream task is treated merely
+the fusion task. Sometimes, this description has been modified by Hang You
 as auxiliary task and is not given due importance. Moreover,
 the networks for the two tasks are only connected through the
 loss functions, lacking structural interaction. This results in a
